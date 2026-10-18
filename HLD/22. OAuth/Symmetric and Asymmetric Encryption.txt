@@ -1,0 +1,25 @@
+Symmetric and Asymmetric Encryption:
+
+Symmetric key:
+1. Same key is used for encryption and decryption
+2. Algo used: DES and AES.
+DES: is fixed length(56 bits) and easy to crack. Process data in 64 bits and perform 16 rounds in its encryption process.
+AES: length (can be 128, 192, 256 bits). process data in 128 bits and perform 10,12,14 rounds in its encryption process
+
+Advantages: Ideal for bulk data because faster than asymmetric encryption due to smaller length
+Disadvantages: Secure key distribution is difficult.
+
+Asymmetric Encryption:
+1. Different keys (public and private) are used for encryption and decryption
+2. Algo used:
+- RSA: supports 2048 bits length
+- DSA
+- Diffie-Hellman
+- ECHDE
+
+Pros: 
+- Two keys are used, so no issue of security distribution of key.
+- Diffie-hellman, ECHDE provides key exchange protocol.
+- Digital signature can be created easily.
+
+Cons: Computation intensive and slower encryption than symmetric key.

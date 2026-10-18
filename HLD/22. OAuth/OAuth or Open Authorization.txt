@@ -1,0 +1,108 @@
+OAuth or Open Authorization
+Enables secure third party access to user protected data.
+
+Suppose, user wants to login into facebook using gmail account, so
+There are 4 Actors are involved in granting access:
+1. Resource Owner: is user whose gmail account is used.
+2  Client: Facebook
+3. Authorization Server: Gmail
+4. Resource Hosting Server: Gmail
+
+Authorization grant Types: Mechanism used by client to obtain access token:
+1. Authorization Code grant: access token & refresh token is granted
+2. Implicit grant: only access token is granted
+3. Resource owner Password credentials grant: both tokens are granted. No auth code is required to create access and refresh token. Username and password are explicitly provided.
+4. Client credential grant: Only access token is granted.
+5. Refresh token grant
+
+1. Authorization Code grant
+
+Resource owner 		Client(FB) 		GMAIL Auth Server		GMAIL Resource Server
+	|		    |				|				|
+	|		    |	1. Register 		|				|
+	|		    |-------------------------->|				|
+	|		    |	2. client id & secret 	|				|
+	|		    |<--------------------------|				|
+	|		    |				|				|
+	|3. signin with gmail				|				|
+	|------------------>|				|				|
+	|		    |				|				|
+	|		    |4. Redirects owner to 	|				|
+	|		    |	auth server 		|				|
+	|		    |-------------------------->|				|
+	|		    |				|				|
+	|		    |			5. Owner authenticate			|
+	|		    |			and provides consent			|
+	|		    |				|				|
+	|		    |				|				|
+	|		    |	6. provides auth code	|				|
+	|		    |<--------------------------|				|
+	|		    |				|				|
+	|		    | 7. Request token		|				|
+	|		    |-------------------------->|				|
+	|		    |	using auth code		|				|
+	|		    |				|				|
+	|		    | 8. Provide access token 	|				|
+	|		    |<--------------------------|				|
+	|		    |	& refresh token		|				|
+	|		    |				|				|
+	|		    |				|				|
+	|		    | 9. Request protected owner data using token		|
+	|		    |---------------------------------------------------------->|
+	|		    |				|				|
+	|		    |				|	10. validate token 	|
+	|		    |				|<------------------------------|
+	|		    |				|				|
+	|		    |				|	11. Valid or Invalid	|
+	|		    |				|------------------------------>|
+	|		    |				|				|
+	|		    |		12. If valid, provide details else 4xx error 	|
+	|		    |<----------------------------------------------------------|
+	|		    |				|				|
+	|		    |				|				|
+	| 13. Sign in	    |				|				|
+	|<------------------|				|				|
+	| success or failure|				|				|
+	|		    |				|				|
+	|		    |				|				|	
+
+Request Response APIs involved in Authorization code grant:
+
+1. Registration:
+
+Request: POST /register
+body: {
+"client_name" : {app_name},
+"redirect_uris": ["url1","url2"]
+}
+
+Response: {
+client_name: {my app name},
+client_id: {unique id assigned to client},
+client_secret: {Confidential info, known only to client and authorization server. use for client authentication}
+}
+
+2. Fetch Authorization Code:
+Request: GET /authorize?
+response_type=code (authorization code used to fetch access token)
+client_id=got during registration. REQUIRED.
+redirect_uris=should match with uris during registration if provided. OPTIONAL.
+scope=data you want to access during request, can be username, age etc. OPTIONAL.
+state=some random value send to auth server to prevent CSRF attacks. OPTIONAL.
+
+3. Fetch Token
+Request: POST /token?
+grant_type=authorization-code
+code= fetched from previous request
+redirect_uri=
+client_id=
+client_secret
+
+Response:{
+"access_token"=JWT
+"token_type"="Bearer", [means client should add token to auth header, whenever it want to access protected resource]
+"expires_in"=3600,
+"refresh_token"=JWT
+}
+
+4. Generate Refresh token: similar as above

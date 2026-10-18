@@ -1,0 +1,53 @@
+CONCURRENCY CONTROL
+
+When we are dealing with one process and multiple threads, we can use locks to handle concurrency issue, like booking a seat. But in distributed concurrency control, multiple servers are used to handle same request, hence locks won't work on multiple processes running on different machines.
+
+Therefore, we use Optimistic Concurrency Control (OCC) and Pessimistic Concurrency Control (PCC) to handle concurrency issue in distributed environment.
+
+Few important pre-requisites:
+1. what is the usage of transaction?
+2. What is DB locking?
+3. what are the isolation level present?
+4. Scenarios where we use OCC and PCC.
+
+1. Transaction will help to achieve Integrity, leads to consistency in db.
+2. DB locking ensured no other transaction update the locked rows. we can have 2 types of locks shared and exclusive locks
+Shared locks are taken for reading and multiple transactions can read simultaneously but exclusive lock is taken on one transaction not even for reading.
+3. Isolation levels
+
+Isolation Level		Dirty Read 	Non-Repeatable Read	Phantom Read
+Read uncommitted	   YES 			YES			YES	
+Read committed		   NO			YES			YES
+Repeatable read		   NO 			NO 			YES
+Serializable  		   NO			NO			NO
+
+Locking strategy
+
+Read Uncommitted	No locks taken
+Read Committed 		shared lock is released ASAP when done reading but exclusive lock is kept till the end of transaction
+Repeatable Read		shared lock and exclusive lock is kept till the end of transaction
+Serializable		Locks are taken for a range of transaction
+
+DIRTY READ:
+If a transaction(A) is updating some row but not committed it yet and other transaction(B) reads that update and later transaction got fail and rollbacked. Therefore, whatever transaction B has read is called dirty read.
+
+NON REPEATABLE READ:
+If a transaction (A) is trying to read the same value repeatedly, it may get different value.
+
+PHANTOM READ:
+If a transaction (A) is executing the same query several times, it is possible that it may get different result 
+
+
+NOTE: OCC uses read uncommitted and read committed but PCC uses other two
+
+OCC:
+1. isolation level is below repeatable read
+2. High concurrency
+3. No deadlocks
+4. In case of conflict(version mismatch), overhead of transaction rollback and retry is possible
+
+PCC: uses 2 Phase locking
+1. isolation level is repeatble read and serializable
+2. Less concurrency as compared to OCC
+3. Dead lock is possible
+4. Lock taken for longer duration leads to rollback due to timeout issue.

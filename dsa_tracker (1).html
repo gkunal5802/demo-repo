@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>DSA Daily Tracker</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f2f1ec;min-height:100vh;color:#1a1a1a;}
+.app{max-width:720px;margin:0 auto;padding:1.5rem 1rem 3rem;}
+.hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.25rem;gap:8px;}
+.hdr-l h1{font-size:19px;font-weight:700;color:#111;letter-spacing:-.3px;}
+.hdr-l p{font-size:12px;color:#777;margin-top:2px;}
+.hdr-r{display:flex;gap:5px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;}
+button{cursor:pointer;font-family:inherit;border-radius:8px;font-size:12px;padding:6px 12px;border:1px solid #d0cec6;background:#fff;color:#333;transition:all .15s;}
+button:hover{background:#ebe8e0;}
+button.g{background:#1a9e75;border-color:#1a9e75;color:#fff;}
+button.g:hover{background:#158a64;}
+button.sm{font-size:11px;padding:4px 10px;}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1rem;}
+.st{background:#fff;border-radius:10px;border:1px solid #e2e0d8;padding:10px 12px;}
+.st-l{font-size:10px;color:#888;margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em;}
+.st-v{font-size:21px;font-weight:700;color:#111;}
+.st-v.green{color:#1a9e75;}
+.pb{height:5px;background:#e2e0d8;border-radius:3px;overflow:hidden;margin-bottom:1.5rem;}
+.pf{height:100%;background:#1a9e75;border-radius:3px;transition:width .4s;}
+.sec{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#888;margin-bottom:.6rem;}
+.day-card{background:#fff;border-radius:14px;border:1px solid #e2e0d8;padding:1.1rem 1.2rem;margin-bottom:1rem;}
+.day-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.75rem;flex-wrap:wrap;gap:6px;}
+.day-num{font-size:17px;font-weight:700;color:#111;}
+.day-sub{font-size:11px;color:#888;margin-top:3px;}
+.day-pr{font-size:11px;color:#aaa;margin-top:2px;}
+.legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:.75rem;}
+.leg{display:flex;align-items:center;gap:5px;font-size:11px;color:#777;}
+.leg-dot{width:7px;height:7px;border-radius:50%;}
+.qlist{display:flex;flex-direction:column;gap:6px;margin-bottom:.75rem;}
+.qcard{background:#f8f7f3;border:1px solid #eae8e0;border-radius:10px;padding:9px 11px;display:flex;align-items:flex-start;gap:9px;}
+.qcard.dim{opacity:.45;}
+.chk{width:18px;height:18px;min-width:18px;border-radius:5px;border:1.5px solid #bbb;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:10px;margin-top:1px;background:#fff;flex-shrink:0;}
+.chk.on{background:#1a9e75;border-color:#1a9e75;color:#fff;}
+.qi{flex:1;min-width:0;}
+.qn{font-size:13px;color:#111;line-height:1.4;}
+.qn.s{text-decoration:line-through;color:#aaa;}
+.qnote{font-size:11px;color:#888;margin-top:2px;line-height:1.4;}
+.lk{font-size:11px;color:#1a6ebd;text-decoration:none;margin-left:5px;}
+.lk:hover{text-decoration:underline;}
+.tags{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap;align-items:center;}
+.tag{font-size:10px;padding:2px 7px;border-radius:7px;font-weight:500;}
+.te{background:#e5f5dc;color:#236b00;}
+.tm{background:#fff3de;color:#8a5000;}
+.th{background:#fde8e8;color:#8b1212;}
+.tco{background:#f0ede6;color:#555;border:1px solid #ddd;}
+.sh-badge{background:#fff3de;color:#8a5000;border:1px solid #f0c060;font-size:9px;padding:2px 7px;border-radius:6px;font-weight:600;}
+.ly-badge{background:#e5f0ff;color:#1040a0;border:1px solid #99c0f0;font-size:9px;padding:2px 7px;border-radius:6px;font-weight:600;}
+.re-badge{background:#e8f5fc;color:#084a6e;border:1px solid #90cce0;font-size:9px;padding:2px 7px;border-radius:6px;font-weight:600;}
+.diff-chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:3px 9px;border-radius:20px;font-weight:500;}
+.diff-chip.e{background:#e5f5dc;color:#236b00;}
+.diff-chip.m{background:#fff3de;color:#8a5000;}
+.diff-chip.h{background:#fde8e8;color:#8b1212;}
+.tip-card{background:#0f2027;border-radius:14px;padding:1.1rem 1.25rem;margin-top:.25rem;color:#fff;position:relative;overflow:hidden;}
+.tip-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;opacity:.55;margin-bottom:.4rem;}
+.tip-type{font-size:11px;font-weight:600;padding:2px 9px;border-radius:6px;display:inline-block;margin-bottom:.6rem;}
+.tip-type.algo{background:#1a9e75;}
+.tip-type.sys{background:#2563eb;}
+.tip-type.pattern{background:#7c3aed;}
+.tip-type.trick{background:#d97706;}
+.tip-title{font-size:15px;font-weight:700;margin-bottom:.5rem;line-height:1.35;}
+.tip-body{font-size:12px;line-height:1.75;opacity:.88;}
+.tip-body code{background:rgba(255,255,255,.13);padding:1px 5px;border-radius:4px;font-size:11px;font-family:monospace;}
+.tip-body strong{color:#7ee8c8;}
+.tip-meta{margin-top:.75rem;font-size:11px;opacity:.5;border-top:1px solid rgba(255,255,255,.1);padding-top:.5rem;}
+.actions{display:flex;gap:6px;flex-wrap:wrap;}
+.view{display:none;}
+.view.active{display:block;}
+.pills{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:.75rem;}
+.pill{font-size:11px;padding:3px 10px;border-radius:7px;cursor:pointer;border:1px solid #d0cec6;background:#f0ede6;color:#666;}
+.pill.cur{background:#1a9e75;border-color:#1a9e75;color:#fff;}
+.pill.full{background:#e5f5dc;border-color:#236b00;color:#236b00;}
+.bk-card{background:#fff;border-radius:12px;border:1px solid #e2e0d8;padding:1rem 1.1rem;margin-bottom:.75rem;}
+.bk-card p{font-size:13px;color:#555;margin-bottom:.65rem;line-height:1.5;}
+textarea{width:100%;border:1px solid #d0cec6;border-radius:8px;padding:9px;font-size:11px;font-family:monospace;resize:vertical;background:#fafaf7;color:#333;}
+.msg{font-size:12px;margin-top:6px;padding:7px 10px;border-radius:6px;display:none;}
+.msg.ok{background:#e5f5dc;color:#236b00;display:block;}
+.msg.er{background:#fde8e8;color:#8b1212;display:block;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hdr">
+    <div class="hdr-l">
+      <h1>DSA Daily Tracker</h1>
+      <p>Striver A2Z · LearnYard (Fraz) · Real interviews 2024–25 · Daily interview tip</p>
+    </div>
+    <div class="hdr-r">
+      <button class="sm" onclick="show('hist')">History</button>
+      <button class="sm" onclick="show('bkp')">Backup</button>
+      <button class="sm g" onclick="newDay()">New day →</button>
+    </div>
+  </div>
+  <div class="stats">
+    <div class="st"><div class="st-l">Solved</div><div class="st-v green" id="s1">0</div></div>
+    <div class="st"><div class="st-l">Days</div><div class="st-v" id="s2">0</div></div>
+    <div class="st"><div class="st-l">Remaining</div><div class="st-v" id="s3">0</div></div>
+    <div class="st"><div class="st-l">Pool used</div><div class="st-v" id="s4">0%</div></div>
+  </div>
+  <div class="pb"><div class="pf" id="gfill" style="width:0%"></div></div>
+
+  <div id="v-main" class="view active">
+    <div class="day-card">
+      <div class="day-top">
+        <div>
+          <div class="day-num" id="dlbl">Day 1</div>
+          <div class="day-sub" id="dsub"></div>
+          <div class="day-pr" id="dpr"></div>
+        </div>
+        <div id="dchips" style="display:flex;gap:5px;flex-wrap:wrap;margin-top:2px;"></div>
+      </div>
+      <div class="legend">
+        <div class="leg"><div class="leg-dot" style="background:#c47000"></div>Striver A2Z</div>
+        <div class="leg"><div class="leg-dot" style="background:#1040a0"></div>LearnYard</div>
+        <div class="leg"><div class="leg-dot" style="background:#084a6e"></div>Real interview</div>
+      </div>
+      <div class="qlist" id="qlist"></div>
+      <div class="actions">
+        <button class="sm" onclick="reshuffle()">Reshuffle ↺</button>
+        <button class="sm g" onclick="markAll()">Mark all done</button>
+      </div>
+    </div>
+    <div class="sec">Daily interview insight</div>
+    <div id="tip-wrap"></div>
+  </div>
+
+  <div id="v-hist" class="view">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
+      <span style="font-size:15px;font-weight:700;">History</span>
+      <button class="sm" onclick="show('main')">← Back</button>
+    </div>
+    <div class="pills" id="hpills"></div>
+    <div id="hday"></div>
+  </div>
+
+  <div id="v-bkp" class="view">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
+      <span style="font-size:15px;font-weight:700;">Backup & Restore</span>
+      <button class="sm" onclick="show('main')">← Back</button>
+    </div>
+    <div class="bk-card">
+      <p>Export your progress — copy the text and save it in Notes or Google Doc.</p>
+      <div style="display:flex;gap:6px;margin-bottom:.5rem;">
+        <button class="sm g" onclick="doExport()">Export</button>
+        <button class="sm" onclick="doCopy()">Copy</button>
+      </div>
+      <textarea id="ebox" rows="4" readonly placeholder="Click Export..."></textarea>
+      <div class="msg" id="emsg"></div>
+    </div>
+    <div class="bk-card">
+      <p>Paste previously exported data to restore on any device:</p>
+      <textarea id="ibox" rows="5" placeholder="Paste data here..."></textarea>
+      <div style="margin-top:.5rem;"><button class="sm g" onclick="doImport()">Restore</button></div>
+      <div class="msg" id="imsg"></div>
+    </div>
+  </div>
+</div>
+<script>
+const TC={'Arrays':'#e3f0fb:#0d3d6b','Binary Search':'#ede9fb:#3d2d8a','Strings':'#fff3de:#8a5000','Linked List':'#e3fbf0:#0d4a2d','Recursion':'#fdf0e3:#7a3000','Bit Manipulation':'#fbe3f5:#5a0060','Stack & Queue':'#e5f5dc:#236b00','Sliding Window':'#fff3de:#8a5000','Two Pointers':'#fbe3f5:#5a0060','Heaps':'#fdf0e3:#7a3000','Greedy':'#f0ede6:#444','Binary Tree':'#e3fbf0:#0d4a2d','BST':'#e3f0fb:#0d3d6b','Graphs':'#fde8e8:#8b1212','DP':'#ede9fb:#3d2d8a','Tries':'#e5f5dc:#236b00','Design':'#fde8e8:#6b0d0d','Math':'#f0ede6:#333','Hashing':'#e3f0fb:#0d3d6b','DFS/BFS':'#fde8e8:#8b1212'};
+function ts(t){const c=TC[t]||'#f0ede6:#444';const[bg,col]=c.split(':');return`background:${bg};color:${col};`;}
+
+const SHEET={
+'Arrays':[{n:'Two Sum',d:'easy',lc:'https://leetcode.com/problems/two-sum/'},{n:'Maximum Subarray',d:'medium',lc:'https://leetcode.com/problems/maximum-subarray/'},{n:'Product of Array Except Self',d:'medium',lc:'https://leetcode.com/problems/product-of-array-except-self/'},{n:'Merge Intervals',d:'medium',lc:'https://leetcode.com/problems/merge-intervals/'},{n:'Container With Most Water',d:'medium',lc:'https://leetcode.com/problems/container-with-most-water/'},{n:'3Sum',d:'medium',lc:'https://leetcode.com/problems/3sum/'},{n:'Trapping Rain Water',d:'hard',lc:'https://leetcode.com/problems/trapping-rain-water/'},{n:'First Missing Positive',d:'hard',lc:'https://leetcode.com/problems/first-missing-positive/'},{n:'Subarray Sum Equals K',d:'medium',lc:'https://leetcode.com/problems/subarray-sum-equals-k/'},{n:'Find the Duplicate Number',d:'medium',lc:'https://leetcode.com/problems/find-the-duplicate-number/'},{n:'Next Permutation',d:'medium',lc:'https://leetcode.com/problems/next-permutation/'},{n:'Spiral Matrix',d:'medium',lc:'https://leetcode.com/problems/spiral-matrix/'},{n:'Sort Colors',d:'medium',lc:'https://leetcode.com/problems/sort-colors/'},{n:'Maximum Product Subarray',d:'medium',lc:'https://leetcode.com/problems/maximum-product-subarray/'},{n:'4Sum',d:'medium',lc:'https://leetcode.com/problems/4sum/'},{n:'Jump Game II',d:'medium',lc:'https://leetcode.com/problems/jump-game-ii/'},{n:'Count Inversions (Merge Sort)',d:'hard',lc:'https://www.geeksforgeeks.org/count-inversions-in-an-array/'},{n:'Rotate Matrix 90°',d:'medium',lc:'https://leetcode.com/problems/rotate-image/'},{n:'Set Matrix Zeroes',d:'medium',lc:'https://leetcode.com/problems/set-matrix-zeroes/'},{n:'Majority Element II',d:'medium',lc:'https://leetcode.com/problems/majority-element-ii/'}],
+'Binary Search':[{n:'Search in Rotated Sorted Array',d:'medium',lc:'https://leetcode.com/problems/search-in-rotated-sorted-array/'},{n:'Median of Two Sorted Arrays',d:'hard',lc:'https://leetcode.com/problems/median-of-two-sorted-arrays/'},{n:'Find Minimum in Rotated Sorted Array',d:'medium',lc:'https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/'},{n:'Koko Eating Bananas',d:'medium',lc:'https://leetcode.com/problems/koko-eating-bananas/'},{n:'Capacity to Ship in D Days',d:'medium',lc:'https://leetcode.com/problems/capacity-to-ship-packages-within-d-days/'},{n:'Aggressive Cows',d:'hard',lc:'https://www.geeksforgeeks.org/aggressive-cows/'},{n:'Book Allocation',d:'hard',lc:'https://www.geeksforgeeks.org/allocate-minimum-number-pages/'},{n:'Search a 2D Matrix',d:'medium',lc:'https://leetcode.com/problems/search-a-2d-matrix/'},{n:'Find Peak Element',d:'medium',lc:'https://leetcode.com/problems/find-peak-element/'},{n:'Painter\'s Partition',d:'hard',lc:'https://www.geeksforgeeks.org/painters-partition-problem/'},{n:'Single Element in Sorted Array',d:'medium',lc:'https://leetcode.com/problems/single-element-in-a-sorted-array/'}],
+'Strings':[{n:'Longest Palindromic Substring',d:'medium',lc:'https://leetcode.com/problems/longest-palindromic-substring/'},{n:'Group Anagrams',d:'medium',lc:'https://leetcode.com/problems/group-anagrams/'},{n:'Minimum Window Substring',d:'hard',lc:'https://leetcode.com/problems/minimum-window-substring/'},{n:'Palindrome Partitioning',d:'medium',lc:'https://leetcode.com/problems/palindrome-partitioning/'},{n:'Longest Substring Without Repeating',d:'medium',lc:'https://leetcode.com/problems/longest-substring-without-repeating-characters/'},{n:'Decode String',d:'medium',lc:'https://leetcode.com/problems/decode-string/'},{n:'Wildcard Matching',d:'hard',lc:'https://leetcode.com/problems/wildcard-matching/'},{n:'Basic Calculator II',d:'medium',lc:'https://leetcode.com/problems/basic-calculator-ii/'},{n:'Find All Anagrams in String',d:'medium',lc:'https://leetcode.com/problems/find-all-anagrams-in-a-string/'}],
+'Linked List':[{n:'Reverse Linked List',d:'easy',lc:'https://leetcode.com/problems/reverse-linked-list/'},{n:'Merge Two Sorted Lists',d:'easy',lc:'https://leetcode.com/problems/merge-two-sorted-lists/'},{n:'Merge K Sorted Lists',d:'hard',lc:'https://leetcode.com/problems/merge-k-sorted-lists/'},{n:'LRU Cache',d:'medium',lc:'https://leetcode.com/problems/lru-cache/'},{n:'Copy List with Random Pointer',d:'medium',lc:'https://leetcode.com/problems/copy-list-with-random-pointer/'},{n:'Remove Nth Node from End',d:'medium',lc:'https://leetcode.com/problems/remove-nth-node-from-end-of-list/'},{n:'Sort List',d:'medium',lc:'https://leetcode.com/problems/sort-list/'},{n:'Reverse Nodes in K-Group',d:'hard',lc:'https://leetcode.com/problems/reverse-nodes-in-k-group/'},{n:'Reorder List',d:'medium',lc:'https://leetcode.com/problems/reorder-list/'}],
+'Stack & Queue':[{n:'Min Stack',d:'medium',lc:'https://leetcode.com/problems/min-stack/'},{n:'Largest Rectangle in Histogram',d:'hard',lc:'https://leetcode.com/problems/largest-rectangle-in-histogram/'},{n:'Daily Temperatures',d:'medium',lc:'https://leetcode.com/problems/daily-temperatures/'},{n:'Sum of Subarray Minimums',d:'medium',lc:'https://leetcode.com/problems/sum-of-subarray-minimums/'},{n:'Remove K Digits',d:'medium',lc:'https://leetcode.com/problems/remove-k-digits/'},{n:'132 Pattern',d:'medium',lc:'https://leetcode.com/problems/132-pattern/'},{n:'Maximum Frequency Stack',d:'hard',lc:'https://leetcode.com/problems/maximum-frequency-stack/'},{n:'Maximal Rectangle',d:'hard',lc:'https://leetcode.com/problems/maximal-rectangle/'},{n:'Number of Visible People in Queue',d:'hard',lc:'https://leetcode.com/problems/number-of-visible-people-in-a-queue/'}],
+'Sliding Window':[{n:'Sliding Window Maximum',d:'hard',lc:'https://leetcode.com/problems/sliding-window-maximum/'},{n:'Longest Repeating Character Replacement',d:'medium',lc:'https://leetcode.com/problems/longest-repeating-character-replacement/'},{n:'Fruits Into Baskets',d:'medium',lc:'https://leetcode.com/problems/fruit-into-baskets/'},{n:'Subarrays with K Distinct',d:'hard',lc:'https://leetcode.com/problems/subarrays-with-k-different-integers/'},{n:'Max Consecutive Ones III',d:'medium',lc:'https://leetcode.com/problems/max-consecutive-ones-iii/'},{n:'Minimum Size Subarray Sum',d:'medium',lc:'https://leetcode.com/problems/minimum-size-subarray-sum/'},{n:'Permutation in String',d:'medium',lc:'https://leetcode.com/problems/permutation-in-string/'}],
+'Two Pointers':[{n:'Two Sum II Sorted',d:'medium',lc:'https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/'},{n:'Valid Palindrome II',d:'easy',lc:'https://leetcode.com/problems/valid-palindrome-ii/'},{n:'Longest Mountain in Array',d:'medium',lc:'https://leetcode.com/problems/longest-mountain-in-array/'}],
+'Heaps':[{n:'Kth Largest Element',d:'medium',lc:'https://leetcode.com/problems/kth-largest-element-in-an-array/'},{n:'Top K Frequent Elements',d:'medium',lc:'https://leetcode.com/problems/top-k-frequent-elements/'},{n:'Find Median from Data Stream',d:'hard',lc:'https://leetcode.com/problems/find-median-from-data-stream/'},{n:'Task Scheduler',d:'medium',lc:'https://leetcode.com/problems/task-scheduler/'},{n:'K Closest Points to Origin',d:'medium',lc:'https://leetcode.com/problems/k-closest-points-to-origin/'},{n:'Meeting Rooms II',d:'medium',lc:'https://leetcode.com/problems/meeting-rooms-ii/'},{n:'IPO Maximize Capital',d:'hard',lc:'https://leetcode.com/problems/ipo/'},{n:'Minimum Cost to Hire K Workers',d:'hard',lc:'https://leetcode.com/problems/minimum-cost-to-hire-k-workers/'},{n:'Reorganize String',d:'medium',lc:'https://leetcode.com/problems/reorganize-string/'},{n:'Minimum Interval to Include Query',d:'hard',lc:'https://leetcode.com/problems/minimum-interval-to-include-each-query/'}],
+'Greedy':[{n:'Jump Game',d:'medium',lc:'https://leetcode.com/problems/jump-game/'},{n:'Gas Station',d:'medium',lc:'https://leetcode.com/problems/gas-station/'},{n:'Non-overlapping Intervals',d:'medium',lc:'https://leetcode.com/problems/non-overlapping-intervals/'},{n:'Partition Labels',d:'medium',lc:'https://leetcode.com/problems/partition-labels/'},{n:'Queue Reconstruction by Height',d:'medium',lc:'https://leetcode.com/problems/queue-reconstruction-by-height/'},{n:'Candy',d:'hard',lc:'https://leetcode.com/problems/candy/'},{n:'Minimum Platforms Required',d:'medium',lc:'https://www.geeksforgeeks.org/minimum-number-platforms-required-railwaybus-station/'},{n:'Job Sequencing Problem',d:'medium',lc:'https://www.geeksforgeeks.org/job-sequencing-problem/'}],
+'Recursion':[{n:'Subsets',d:'medium',lc:'https://leetcode.com/problems/subsets/'},{n:'Permutations',d:'medium',lc:'https://leetcode.com/problems/permutations/'},{n:'Combination Sum',d:'medium',lc:'https://leetcode.com/problems/combination-sum/'},{n:'N-Queens',d:'hard',lc:'https://leetcode.com/problems/n-queens/'},{n:'Sudoku Solver',d:'hard',lc:'https://leetcode.com/problems/sudoku-solver/'},{n:'Word Search',d:'medium',lc:'https://leetcode.com/problems/word-search/'},{n:'Letter Combinations Phone Number',d:'medium',lc:'https://leetcode.com/problems/letter-combinations-of-a-phone-number/'},{n:'Expression Add Operators',d:'hard',lc:'https://leetcode.com/problems/expression-add-operators/'},{n:'Generate Parentheses',d:'medium',lc:'https://leetcode.com/problems/generate-parentheses/'},{n:'Permutations II (with dups)',d:'medium',lc:'https://leetcode.com/problems/permutations-ii/'}],
+'Bit Manipulation':[{n:'Single Number',d:'easy',lc:'https://leetcode.com/problems/single-number/'},{n:'Counting Bits',d:'easy',lc:'https://leetcode.com/problems/counting-bits/'},{n:'Sum of Two Integers (no +/-)',d:'medium',lc:'https://leetcode.com/problems/sum-of-two-integers/'},{n:'Maximum XOR of Two Numbers',d:'medium',lc:'https://leetcode.com/problems/maximum-xor-of-two-numbers-in-an-array/'},{n:'Largest Combination with AND > 0',d:'medium',lc:'https://leetcode.com/problems/largest-combination-with-bitwise-and-greater-than-zero/'}],
+'Binary Tree':[{n:'Binary Tree Level Order Traversal',d:'medium',lc:'https://leetcode.com/problems/binary-tree-level-order-traversal/'},{n:'Binary Tree Maximum Path Sum',d:'hard',lc:'https://leetcode.com/problems/binary-tree-maximum-path-sum/'},{n:'Lowest Common Ancestor',d:'medium',lc:'https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/'},{n:'Serialize and Deserialize BT',d:'hard',lc:'https://leetcode.com/problems/serialize-and-deserialize-binary-tree/'},{n:'Construct Tree from Pre+Inorder',d:'medium',lc:'https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/'},{n:'Right Side View',d:'medium',lc:'https://leetcode.com/problems/binary-tree-right-side-view/'},{n:'Vertical Order Traversal',d:'hard',lc:'https://leetcode.com/problems/vertical-order-traversal-of-a-binary-tree/'},{n:'All Nodes Distance K in Tree',d:'medium',lc:'https://leetcode.com/problems/all-nodes-distance-k-in-binary-tree/'},{n:'Binary Tree Cameras',d:'hard',lc:'https://leetcode.com/problems/binary-tree-cameras/'},{n:'Maximum Width of BT',d:'medium',lc:'https://leetcode.com/problems/maximum-width-of-binary-tree/'},{n:'Count Nodes Equal to Avg Subtree',d:'medium',lc:'https://leetcode.com/problems/count-nodes-equal-to-average-of-subtree/'},{n:'Kth Largest Sum in BT',d:'medium',lc:'https://leetcode.com/problems/kth-largest-sum-in-a-binary-tree/'}],
+'BST':[{n:'Validate BST',d:'medium',lc:'https://leetcode.com/problems/validate-binary-search-tree/'},{n:'Kth Smallest in BST',d:'medium',lc:'https://leetcode.com/problems/kth-smallest-element-in-a-bst/'},{n:'BST Iterator',d:'medium',lc:'https://leetcode.com/problems/binary-search-tree-iterator/'},{n:'Delete Node in BST',d:'medium',lc:'https://leetcode.com/problems/delete-node-in-a-bst/'},{n:'Recover BST',d:'hard',lc:'https://leetcode.com/problems/recover-binary-search-tree/'},{n:'Balance a BST',d:'medium',lc:'https://leetcode.com/problems/balance-a-binary-search-tree/'}],
+'Graphs':[{n:'Number of Islands',d:'medium',lc:'https://leetcode.com/problems/number-of-islands/'},{n:'Course Schedule II (Topo)',d:'medium',lc:'https://leetcode.com/problems/course-schedule-ii/'},{n:'Word Ladder',d:'hard',lc:'https://leetcode.com/problems/word-ladder/'},{n:'Alien Dictionary',d:'hard',lc:'https://leetcode.com/problems/alien-dictionary/'},{n:'Network Delay Time (Dijkstra)',d:'medium',lc:'https://leetcode.com/problems/network-delay-time/'},{n:'Cheapest Flights K Stops',d:'medium',lc:'https://leetcode.com/problems/cheapest-flights-within-k-stops/'},{n:'Critical Connections in Network',d:'hard',lc:'https://leetcode.com/problems/critical-connections-in-a-network/'},{n:'Swim in Rising Water',d:'hard',lc:'https://leetcode.com/problems/swim-in-rising-water/'},{n:'Accounts Merge',d:'medium',lc:'https://leetcode.com/problems/accounts-merge/'},{n:'Pacific Atlantic Water Flow',d:'medium',lc:'https://leetcode.com/problems/pacific-atlantic-water-flow/'},{n:'Reconstruct Itinerary',d:'hard',lc:'https://leetcode.com/problems/reconstruct-itinerary/'},{n:'Floyd Warshall',d:'hard',lc:'https://www.geeksforgeeks.org/floyd-warshall-algorithm-dp-16/'},{n:'Making a Large Island',d:'hard',lc:'https://leetcode.com/problems/making-a-large-island/'},{n:'Is Graph Bipartite',d:'medium',lc:'https://leetcode.com/problems/is-graph-bipartite/'},{n:'Longest Increasing Path in Matrix',d:'hard',lc:'https://leetcode.com/problems/longest-increasing-path-in-a-matrix/'},{n:'Rotting Oranges',d:'medium',lc:'https://leetcode.com/problems/rotting-oranges/'},{n:'The Maze',d:'medium',lc:'https://leetcode.com/problems/the-maze/'},{n:'The Maze II',d:'medium',lc:'https://leetcode.com/problems/the-maze-ii/'}],
+'DP':[{n:'Coin Change',d:'medium',lc:'https://leetcode.com/problems/coin-change/'},{n:'Longest Common Subsequence',d:'medium',lc:'https://leetcode.com/problems/longest-common-subsequence/'},{n:'Edit Distance',d:'medium',lc:'https://leetcode.com/problems/edit-distance/'},{n:'Partition Equal Subset Sum',d:'medium',lc:'https://leetcode.com/problems/partition-equal-subset-sum/'},{n:'Word Break',d:'medium',lc:'https://leetcode.com/problems/word-break/'},{n:'Burst Balloons',d:'hard',lc:'https://leetcode.com/problems/burst-balloons/'},{n:'Longest Increasing Subsequence',d:'medium',lc:'https://leetcode.com/problems/longest-increasing-subsequence/'},{n:'Buy Sell Stock III',d:'hard',lc:'https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iii/'},{n:'Buy Sell Stock IV',d:'hard',lc:'https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iv/'},{n:'Regular Expression Matching',d:'hard',lc:'https://leetcode.com/problems/regular-expression-matching/'},{n:'Distinct Subsequences',d:'hard',lc:'https://leetcode.com/problems/distinct-subsequences/'},{n:'Max Profit in Job Scheduling',d:'hard',lc:'https://leetcode.com/problems/maximum-profit-in-job-scheduling/'},{n:'Cherry Pickup II',d:'hard',lc:'https://leetcode.com/problems/cherry-pickup-ii/'},{n:'Super Egg Drop',d:'hard',lc:'https://leetcode.com/problems/super-egg-drop/'},{n:'Shortest Common Supersequence',d:'hard',lc:'https://leetcode.com/problems/shortest-common-supersequence/'},{n:'Matrix Chain Multiplication',d:'hard',lc:'https://www.geeksforgeeks.org/matrix-chain-multiplication-dp-8/'},{n:'Strange Printer',d:'hard',lc:'https://leetcode.com/problems/strange-printer/'},{n:'Triangle',d:'medium',lc:'https://leetcode.com/problems/triangle/'},{n:'Decode Ways',d:'medium',lc:'https://leetcode.com/problems/decode-ways/'},{n:'House Robber II',d:'medium',lc:'https://leetcode.com/problems/house-robber-ii/'},{n:'Minimum Cost for Tickets',d:'medium',lc:'https://leetcode.com/problems/minimum-cost-for-tickets/'},{n:'Coin Change II',d:'medium',lc:'https://leetcode.com/problems/coin-change-ii/'},{n:'Best Time with Cooldown',d:'medium',lc:'https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/'}],
+'Tries':[{n:'Implement Trie',d:'medium',lc:'https://leetcode.com/problems/implement-trie-prefix-tree/'},{n:'Word Search II',d:'hard',lc:'https://leetcode.com/problems/word-search-ii/'},{n:'Design Add and Search Words',d:'medium',lc:'https://leetcode.com/problems/design-add-and-search-words-data-structure/'},{n:'Stream of Characters',d:'hard',lc:'https://leetcode.com/problems/stream-of-characters/'},{n:'Word Break II',d:'hard',lc:'https://leetcode.com/problems/word-break-ii/'}],
+'Design':[{n:'LFU Cache',d:'hard',lc:'https://leetcode.com/problems/lfu-cache/'},{n:'Design Twitter',d:'medium',lc:'https://leetcode.com/problems/design-twitter/'},{n:'Insert Delete GetRandom O(1)',d:'medium',lc:'https://leetcode.com/problems/insert-delete-getrandom-o1/'},{n:'Time Based Key-Value Store',d:'medium',lc:'https://leetcode.com/problems/time-based-key-value-store/'},{n:'All O(1) Data Structure',d:'hard',lc:'https://leetcode.com/problems/all-oone-data-structure/'},{n:'Design Tic-Tac-Toe',d:'medium',lc:'https://leetcode.com/problems/design-tic-tac-toe/'}]
+};
+
+const LY={
+'Arrays':[{n:'Maximum Sum Circular Subarray',d:'medium',lc:'https://leetcode.com/problems/maximum-sum-circular-subarray/'},{n:'Number of Laser Beams in Bank',d:'medium',lc:'https://leetcode.com/problems/number-of-laser-beams-in-a-bank/'},{n:'Count Subarrays Score < K',d:'hard',lc:'https://leetcode.com/problems/count-subarrays-with-score-less-than-k/'},{n:'Max Sum Distinct Subarrays Length K',d:'medium',lc:'https://leetcode.com/problems/maximum-sum-of-distinct-subarrays-with-length-k/'},{n:'Longest Turbulent Subarray',d:'medium',lc:'https://leetcode.com/problems/longest-turbulent-subarray/'},{n:'Find Pivot Index',d:'easy',lc:'https://leetcode.com/problems/find-pivot-index/'},{n:'Minimum Operations Make Array Equal II',d:'medium',lc:'https://leetcode.com/problems/minimum-operations-to-make-array-equal-ii/'},{n:'Spiral Matrix II',d:'medium',lc:'https://leetcode.com/problems/spiral-matrix-ii/'}],
+'Sliding Window':[{n:'Grumpy Bookstore Owner',d:'medium',lc:'https://leetcode.com/problems/grumpy-bookstore-owner/'},{n:'Binary Subarrays With Sum',d:'medium',lc:'https://leetcode.com/problems/binary-subarrays-with-sum/'},{n:'Check String Contains All Binary Codes K',d:'medium',lc:'https://leetcode.com/problems/check-if-a-string-contains-all-binary-codes-of-size-k/'},{n:'Maximum Average Subarray I',d:'easy',lc:'https://leetcode.com/problems/maximum-average-subarray-i/'},{n:'Find Longest Semi-Repetitive Substring',d:'medium',lc:'https://leetcode.com/problems/find-the-longest-semi-repetitive-substring/'},{n:'Count Subarrays Where Max Appears K Times',d:'medium',lc:'https://leetcode.com/problems/count-subarrays-where-max-element-appears-at-least-k-times/'}],
+'Two Pointers':[{n:'Boats to Save People',d:'medium',lc:'https://leetcode.com/problems/boats-to-save-people/'},{n:'Number of Subsequences Satisfy Sum',d:'medium',lc:'https://leetcode.com/problems/number-of-subsequences-that-satisfy-the-given-sum-condition/'},{n:'Max Number of K-Sum Pairs',d:'medium',lc:'https://leetcode.com/problems/max-number-of-k-sum-pairs/'}],
+'Hashing':[{n:'Isomorphic Strings',d:'easy',lc:'https://leetcode.com/problems/isomorphic-strings/'},{n:'4Sum II Count Tuples',d:'medium',lc:'https://leetcode.com/problems/4sum-ii/'},{n:'Longest Consecutive Sequence',d:'medium',lc:'https://leetcode.com/problems/longest-consecutive-sequence/'},{n:'Design HashMap from Scratch',d:'easy',lc:'https://leetcode.com/problems/design-hashmap/'},{n:'Word Pattern',d:'easy',lc:'https://leetcode.com/problems/word-pattern/'}],
+'Strings':[{n:'Reverse Words in a String',d:'medium',lc:'https://leetcode.com/problems/reverse-words-in-a-string/'},{n:'Text Justification',d:'hard',lc:'https://leetcode.com/problems/text-justification/'},{n:'Minimum Deletions Make Char Freq Unique',d:'medium',lc:'https://leetcode.com/problems/minimum-deletions-to-make-character-frequencies-unique/'},{n:'Zigzag Conversion',d:'medium',lc:'https://leetcode.com/problems/zigzag-conversion/'}],
+'Math':[{n:'Count Primes (Sieve)',d:'medium',lc:'https://leetcode.com/problems/count-primes/'},{n:'Trailing Zeroes in Factorial',d:'medium',lc:'https://leetcode.com/problems/factorial-trailing-zeroes/'},{n:'Happy Number',d:'easy',lc:'https://leetcode.com/problems/happy-number/'},{n:'Reverse Integer',d:'medium',lc:'https://leetcode.com/problems/reverse-integer/'},{n:'Power of Two',d:'easy',lc:'https://leetcode.com/problems/power-of-two/'}],
+'DFS/BFS':[{n:'Flood Fill',d:'easy',lc:'https://leetcode.com/problems/flood-fill/'},{n:'Surrounded Regions',d:'medium',lc:'https://leetcode.com/problems/surrounded-regions/'},{n:'Count Sub Islands',d:'medium',lc:'https://leetcode.com/problems/count-sub-islands/'},{n:'Shortest Bridge',d:'medium',lc:'https://leetcode.com/problems/shortest-bridge/'},{n:'Maximum Area of Island',d:'medium',lc:'https://leetcode.com/problems/max-area-of-island/'},{n:'Find All Groups of Farmland',d:'medium',lc:'https://leetcode.com/problems/find-all-groups-of-farmland/'},{n:'Number of Enclaves',d:'medium',lc:'https://leetcode.com/problems/number-of-enclaves/'}],
+'Recursion':[{n:'Letter Case Permutation',d:'medium',lc:'https://leetcode.com/problems/letter-case-permutation/'},{n:'Fair Distribution of Cookies',d:'medium',lc:'https://leetcode.com/problems/fair-distribution-of-cookies/'},{n:'Combination Sum IV Count',d:'medium',lc:'https://leetcode.com/problems/combination-sum-iv/'},{n:'Restore IP Addresses',d:'medium',lc:'https://leetcode.com/problems/restore-ip-addresses/'},{n:'Path with Maximum Gold',d:'medium',lc:'https://leetcode.com/problems/path-with-maximum-gold/'}],
+'DP':[{n:'Minimum Path Sum',d:'medium',lc:'https://leetcode.com/problems/minimum-path-sum/'},{n:'Unique Paths II',d:'medium',lc:'https://leetcode.com/problems/unique-paths-ii/'},{n:'Maximal Square',d:'medium',lc:'https://leetcode.com/problems/maximal-square/'},{n:'Count Vowels Permutation',d:'hard',lc:'https://leetcode.com/problems/count-vowels-permutation/'},{n:'Minimum Falling Path Sum',d:'medium',lc:'https://leetcode.com/problems/minimum-falling-path-sum/'},{n:'Integer Break',d:'medium',lc:'https://leetcode.com/problems/integer-break/'},{n:'Delete and Earn',d:'medium',lc:'https://leetcode.com/problems/delete-and-earn/'},{n:'Stone Game',d:'medium',lc:'https://leetcode.com/problems/stone-game/'},{n:'Tiling Problem',d:'medium',lc:'https://www.geeksforgeeks.org/tiling-problem/'}],
+'Binary Tree':[{n:'Diameter of Binary Tree',d:'easy',lc:'https://leetcode.com/problems/diameter-of-binary-tree/'},{n:'Path Sum II',d:'medium',lc:'https://leetcode.com/problems/path-sum-ii/'},{n:'Flatten BT to Linked List',d:'medium',lc:'https://leetcode.com/problems/flatten-binary-tree-to-linked-list/'},{n:'Check Completeness of BT',d:'medium',lc:'https://leetcode.com/problems/check-completeness-of-binary-tree/'},{n:'Sum Root to Leaf Numbers',d:'medium',lc:'https://leetcode.com/problems/sum-root-to-leaf-numbers/'},{n:'Count Good Nodes in BT',d:'medium',lc:'https://leetcode.com/problems/count-good-nodes-in-binary-tree/'},{n:'Pseudo-Palindromic Paths in BT',d:'medium',lc:'https://leetcode.com/problems/pseudo-palindromic-paths-in-a-binary-tree/'}],
+'Graphs':[{n:'Find Eventual Safe States',d:'medium',lc:'https://leetcode.com/problems/find-eventual-safe-states/'},{n:'Minimum Genetic Mutation BFS',d:'medium',lc:'https://leetcode.com/problems/minimum-genetic-mutation/'},{n:'Bus Routes BFS on Groups',d:'hard',lc:'https://leetcode.com/problems/bus-routes/'},{n:'Possible Bipartition',d:'medium',lc:'https://leetcode.com/problems/possible-bipartition/'},{n:'Find City Smallest Reachable Threshold',d:'medium',lc:'https://leetcode.com/problems/find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance/'},{n:'Evaluate Division Weighted Graph',d:'medium',lc:'https://leetcode.com/problems/evaluate-division/'}]
+};
+
+const REAL=[
+  {n:'Maximum Area Rectangle from Coordinates',d:'hard',t:'Graphs',src:'Google SWE 2024',note:'Max rectangle area from matrix coordinates. Google new grad round Oct 2024.',lc:'https://leetcode.com/problems/maximal-rectangle/'},
+  {n:'Train Onboard/Offboard Range Query',d:'hard',t:'Arrays',src:'Google L4 2025',note:'Count people on train across stops — difference array range query.',lc:'https://leetcode.com/problems/corporate-flight-bookings/'},
+  {n:'Boolean Expression Library (eval TRUE)',d:'hard',t:'Recursion',src:'Google L4 2024',note:'Design library — can boolean expression evaluate to TRUE? 2^n states.',lc:'https://leetcode.com/problems/parsing-a-boolean-expression/'},
+  {n:'Number of Islands in a Tree',d:'hard',t:'Graphs',src:'Google Phone Screen 2024',note:'Tree variant of islands — directly from Google phone screen.',lc:'https://leetcode.com/problems/number-of-provinces/'},
+  {n:'Count Rectangles Containing Each Point',d:'medium',t:'Binary Search',src:'Google India 2024',note:'Frequently cited in 2024 Google India L4 interviews.',lc:'https://leetcode.com/problems/count-rectangles-containing-each-point/'},
+  {n:'Rotting Oranges',d:'medium',t:'DFS/BFS',src:'Amazon OA 2024',note:'Multi-source BFS — very high frequency Amazon OA 2024.',lc:'https://leetcode.com/problems/rotting-oranges/'},
+  {n:'Maximum Area of Island',d:'medium',t:'DFS/BFS',src:'Amazon OA 2025',note:'Variation of Number of Islands — high frequency Amazon OA 2025.',lc:'https://leetcode.com/problems/max-area-of-island/'},
+  {n:'Minimum Moves to Reach Target Score',d:'medium',t:'Greedy',src:'Amazon 2025',note:'Greedy beats DP here — Amazon trick to test over-engineering.',lc:'https://leetcode.com/problems/minimum-moves-to-reach-target-score/'},
+  {n:'Find Anagram Mappings',d:'easy',t:'Hashing',src:'Amazon SDE-1 2025',note:'Warm-up in Amazon SDE-1 onsite — hash map usage check.',lc:'https://leetcode.com/problems/find-anagram-mappings/'},
+  {n:'Coin Change → Count Combinations Follow-up',d:'medium',t:'DP',src:'Amazon 2025',note:'After Coin Change, interviewer asks to count combinations. Classic 2-in-1.',lc:'https://leetcode.com/problems/coin-change-ii/'},
+  {n:'Find All Groups of Farmland',d:'medium',t:'DFS/BFS',src:'Amazon OA 2024',note:'Matrix DFS/BFS variant — high frequency Amazon OA.',lc:'https://leetcode.com/problems/find-all-groups-of-farmland/'},
+  {n:'Spiral Matrix II',d:'medium',t:'Arrays',src:'Microsoft 2024',note:'Variation of Spiral Matrix — tests simulation and index handling.',lc:'https://leetcode.com/problems/spiral-matrix-ii/'},
+  {n:'Find Second Largest Without Extra Space',d:'easy',t:'Arrays',src:'Walmart Tech Round 2024',note:'Single iteration, no extra space — literally asked in Walmart round 1.',lc:'https://www.geeksforgeeks.org/find-second-largest-element-array/'},
+  {n:'String Replacement 3-string Pattern',d:'medium',t:'Strings',src:'Walmart SDE-2 2024',note:'Replace every occurrence of s2 in s1 with s3 — direct from Walmart.',lc:'https://leetcode.com/problems/replace-all-occurrences-of-string/'},
+  {n:'Count Nodes Equal to Average of Subtree',d:'medium',t:'Binary Tree',src:'Amazon 2024',note:'Tree DFS with average check — Amazon 2024.',lc:'https://leetcode.com/problems/count-nodes-equal-to-average-of-subtree/'},
+  {n:'Kth Largest Sum in Binary Tree',d:'medium',t:'Binary Tree',src:'Amazon 2024',note:'Level sums + min heap — combines BFS and Heaps.',lc:'https://leetcode.com/problems/kth-largest-sum-in-a-binary-tree/'},
+  {n:'Maximum Number of Points from Grid Queries',d:'hard',t:'Graphs',src:'Google India 2024',note:'BFS + offline queries sorted — Google India L4 rounds.',lc:'https://leetcode.com/problems/maximum-number-of-points-from-grid-queries/'},
+  {n:'Design Underground System',d:'medium',t:'Design',src:'Amazon India 2024',note:'Track average travel time — tests hash map design thinking.',lc:'https://leetcode.com/problems/design-underground-system/'},
+  {n:'K Items With Maximum Sum',d:'easy',t:'Greedy',src:'Amazon OA 2024',note:'Amazon uses this as first OA question to filter candidates.',lc:'https://leetcode.com/problems/k-items-with-the-maximum-sum/'},
+  {n:'Minimum Weighted Subgraph Required Paths',d:'hard',t:'Graphs',src:'Google 2024',note:'Multi-source Dijkstra — Google hard graph 2024 onsite.',lc:'https://leetcode.com/problems/minimum-weighted-subgraph-with-the-required-paths/'},
+  {n:'Minimum Total Distance Traveled',d:'hard',t:'DP',src:'Google 2024',note:'DP on sorted positions — seen in 2024 Google interviews.',lc:'https://leetcode.com/problems/minimum-total-distance-traveled/'},
+  {n:'Minimum Interval to Include Each Query',d:'hard',t:'Heaps',src:'Google 2024',note:'Sort + heap — appeared in Google L5 onsite 2024.',lc:'https://leetcode.com/problems/minimum-interval-to-include-each-query/'},
+  {n:'Path with Maximum Gold',d:'medium',t:'Recursion',src:'Microsoft 2025',note:'DFS backtracking — Microsoft uses to test recursive thinking.',lc:'https://leetcode.com/problems/path-with-maximum-gold/'},
+  {n:'Maximum Tastiness of Candy Basket',d:'medium',t:'Binary Search',src:'Amazon OA 2025',note:'Binary search on answer — Amazon OA 2025 recent.',lc:'https://leetcode.com/problems/maximum-tastiness-of-candy-basket/'}
+];
+
+const TIPS=[
+  {type:'pattern',title:'The atMost(k) − atMost(k−1) Sliding Window Trick',body:'When a problem asks for subarrays with <strong>exactly k distinct</strong> elements, you cannot use a direct window. Instead: <code>exactly(k) = atMost(k) - atMost(k-1)</code>. Works for: k distinct integers, binary subarrays with sum = k, substrings with exactly k chars. LearnYard specifically drills this pattern — it covers ~8 LC problems.',meta:'LearnYard pattern · LC 930, 992, 1248'},
+  {type:'algo',title:'Kadane\'s Extended: Maximum Sum Circular Subarray',body:'For circular arrays the answer is either the normal max subarray (Kadane\'s) OR total sum minus the <strong>minimum subarray</strong>. Why? A circular subarray = total − (minimum middle). Edge case: if all numbers are negative, return the max subarray result only.',meta:'LC 918 · Amazon / Google follow-up to regular Kadane\'s'},
+  {type:'sys',title:'Design a Rate Limiter: Token Bucket vs Sliding Window',body:'<strong>Token Bucket</strong> — tokens refill at rate r/sec, request consumes 1 token, allows bursts. <strong>Sliding Window Counter</strong> — track requests in last N seconds via sorted timestamps. Precise but O(requests) memory. In interviews, mention Redis INCR + EXPIRE for distributed rate limiting. Always ask: per-user or global? Hard or soft limit?',meta:'System Design · frequently asked at Amazon, Google, Amex'},
+  {type:'trick',title:'Binary Search on the Answer Pattern',body:'When the problem says "find minimum X such that condition holds" — binary search the answer space. Template: <code>lo=min, hi=max</code>, binary search while checking <code>canAchieve(mid)</code>. Used in: Koko bananas, ship packages, aggressive cows, painter\'s partition, book allocation. This pattern turns O(n²) into O(n log n).',meta:'Critical for Google interviews · 20+ LC problems'},
+  {type:'algo',title:'Floyd\'s Cycle Detection (Tortoise & Hare)',body:'Detect cycle: slow (1 step) + fast (2 steps) — they meet inside the cycle. To find <strong>cycle start</strong>: reset slow to head, keep fast at meeting point, move both 1 step — they meet at start. O(n) time, O(1) space. Also works for finding duplicates in arrays (LC 287 — same idea).',meta:'LC 142 · Amazon / Microsoft classic'},
+  {type:'sys',title:'Design a URL Shortener (TinyURL)',body:'Hash long URL with MD5, take first 6 chars (base62 = 62^6 ≈ 56B URLs). Collision handling: append counter or retry. Storage: Redis (speed) + DB (persistence). For scale: CDN for reads, consistent hashing for distributed KV nodes. Key interview insight: shorteners are <strong>read-heavy 100:1</strong> — optimize for reads.',meta:'System Design · most common entry-level system design'},
+  {type:'pattern',title:'Monotonic Stack: When and Why',body:'Use a monotonic stack for: <strong>next greater/smaller element</strong>, stock span, largest rectangle in histogram. When you pop an element, you have found its "answer" — the element that broke the monotonicity. Key templates: next greater → pop when <code>nums[i] > stack.top()</code>. Sum of subarray minimums uses the same idea.',meta:'Striver + LearnYard drilling · Google / Amazon frequently ask'},
+  {type:'algo',title:'Topological Sort: Kahn\'s BFS vs DFS',body:'<strong>Kahn\'s BFS</strong>: track in-degree, start with 0 in-degree nodes. On pop, reduce neighbor in-degree — if 0, enqueue. <strong>DFS</strong>: add node to stack after visiting all neighbors, reverse = topo order. <strong>Cycle detection</strong>: Kahn\'s processed < total nodes → cycle exists. Use cases: course schedule, alien dictionary, build order.',meta:'LC 207, 210 · Amazon loves this topic'},
+  {type:'sys',title:'Design a Notification System',body:'Flow: Producer → <strong>Message Queue</strong> (Kafka/SQS) → Notification Workers → Channel Adapters (Email via SES, SMS via Twilio, Push via FCM/APNs). Handle failures: retry with exponential backoff + dead letter queue. Rate limit per user. Priority queue for urgent. Key question to ask: delivery guarantee — exactly-once vs at-least-once?',meta:'System Design · Walmart / Amazon round topic'},
+  {type:'trick',title:'Sort + Two Pointer Reduces O(n²) to O(n log n)',body:'Sort first, then two pointers from both ends. Reduces: 3Sum, 4Sum, Container with Most Water, Boats to Save People. Logic: <strong>sum too big → move right pointer left. Too small → move left pointer right.</strong> This is the LearnYard Two Pointers pattern — sort once, then O(n) scan.',meta:'LearnYard drilling focus · 15+ interview problems'},
+  {type:'algo',title:'Union-Find with Path Compression + Union by Rank',body:'Two optimizations: <strong>1. Union by Rank</strong> — attach smaller tree under larger. <strong>2. Path Compression</strong> — during find(), make every node point directly to root. With both: nearly O(1) amortized. Template: <code>parent[i]=i</code> initially, find with compression, union by rank. Use for: detect cycle, connected components, Kruskal\'s MST.',meta:'LC 684, 721, 1584 · Amazon / Google'},
+  {type:'sys',title:'Design a Distributed Cache (Redis-like)',body:'Hash ring for consistent hashing — add/remove nodes with minimal rehashing. <strong>Replication</strong>: primary + N replicas. <strong>Eviction policies</strong>: LRU (doubly LL + hashmap), LFU (min-heap + counter). <strong>Cache-aside vs Write-through vs Write-back</strong>: cache-aside = app checks cache first (most common). Discuss: cold start problem, thundering herd.',meta:'System Design · Google / Amazon / Microsoft senior rounds'},
+  {type:'pattern',title:'DP Evolution: 5 Levels',body:'Every DP has 5 forms: <strong>1.</strong> Brute recursion. <strong>2.</strong> Top-down memoization. <strong>3.</strong> Bottom-up tabulation. <strong>4.</strong> Space-optimized (rolling array). <strong>5.</strong> Further optimization (prefix sums inside DP). In interviews: start top-down (faster to code), then optimize. Say: "I\'ll start with memoization and optimize to O(1) space."',meta:'Core interview strategy · Google values showing optimization steps'},
+  {type:'algo',title:'Dijkstra\'s: The 4 Interview Variations',body:'Standard: min-heap + dist array. Variations: <strong>1. Max path</strong> — negate weights. <strong>2. K-stops limit</strong> (Cheapest Flights) — add #stops to state. <strong>3. Probability max</strong> — multiply instead of add. <strong>4. Bidirectional</strong> — run from both ends. Always explain why BFS doesn\'t work for weighted graphs.',meta:'LC 743, 787, 1514 · Amex / Amazon interview pattern'},
+  {type:'sys',title:'Design Search Autocomplete (Typeahead)',body:'<strong>Trie</strong> for prefix lookup. At each node, store top-3 hottest searches by frequency. On insert/update, update ancestor nodes. Alternative: inverted index + ranking. For scale: partition trie by first letter. Handle typos: Levenshtein distance for fuzzy match. For data too large for memory: distributed trie with consistent hashing.',meta:'System Design · Google classic · also tests Tries knowledge'},
+  {type:'trick',title:'XOR Tricks for Interview Problems',body:'Key XOR properties: <code>a^a=0</code>, <code>a^0=a</code>, commutative + associative. Use cases: find single number (XOR all elements), detect bit at position k: <code>(n>>k)&1</code>. Maximum XOR in array: use Trie, greedily pick the opposite bit at each level. XOR range queries: prefix XOR array. <strong>XOR swap</strong>: <code>a^=b; b^=a; a^=b</code>.',meta:'LC 136, 260, 421 · Google bit manipulation topic'},
+  {type:'pattern',title:'4 Interval Problem Templates',body:'All interval problems: <strong>1. Merge</strong> — sort by start, merge overlapping (LC 56). <strong>2. Insert</strong> — find overlap, merge all (LC 57). <strong>3. Remove min to avoid overlap</strong> — sort by end, greedy (LC 435). <strong>4. Minimum rooms</strong> — sort starts, use min-heap of ends (LC 253). Master these 4 and you cover all interval questions.',meta:'Amazon / Google pattern · 8+ problems covered'},
+  {type:'sys',title:'Design Twitter / Instagram Feed',body:'<strong>Fan-out on write</strong>: push to all followers on post. Fast reads, expensive for celebrities. <strong>Fan-out on read</strong>: compute feed at read time. <strong>Hybrid</strong>: fan-out for normal users, pull for celebrities. Storage: Redis sorted set (timestamp as score) per user. Pagination: cursor-based, not offset. Media: S3 + CDN.',meta:'System Design · Meta / Amazon / Flipkart interview'},
+  {type:'algo',title:'Fast Exponentiation (Binary Exponentiation)',body:'Calculate x^n in O(log n). Key: <code>x^n = (x^(n/2))²</code>. If n is odd, multiply one extra x. Same pattern for: matrix exponentiation (Fibonacci in O(log n)), modular exponentiation, counting paths in graph after k steps. Template: <code>while n>0: if n%2==1: res*=x; x*=x; n//=2</code>.',meta:'LC 50 · LearnYard drilling · Google OA common'},
+  {type:'sys',title:'Design a Key-Value Store (DynamoDB-like)',body:'Partitioning: consistent hashing. <strong>Replication</strong>: N replicas, write to W nodes, read from R nodes. Tunable consistency: W+R > N → strong consistency. <strong>Conflict resolution</strong>: vector clocks or last-write-wins. <strong>Gossip protocol</strong> for membership. Storage: <strong>LSM tree</strong> (write-optimized) vs <strong>B-tree</strong> (read-optimized). Always mention CAP theorem.',meta:'System Design · Amazon / Microsoft senior design round'},
+];
+
+const KEY='dsa_tracker_v1';
+let ST={days:{},solved:{},usedSheet:{},usedLY:{},usedReal:{},tipIdx:0};
+function loadST(){try{const r=localStorage.getItem(KEY);if(r){const p=JSON.parse(r);if(p.days)ST=p;}}catch(e){}}
+function saveST(){try{localStorage.setItem(KEY,JSON.stringify(ST));}catch(e){}}
+loadST();
+
+function shuffle(arr,seed){const a=[...arr];let s=seed||(Date.now()&0xffffff);for(let i=a.length-1;i>0;i--){s=(s*1664525+1013904223)&0xffffffff;const j=Math.abs(s)%(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;}
+function ns(s){return Math.abs((s*1664525+1013904223)&0xffffffff);}
+
+// Day mode — how many and what difficulty
+function getMode(s){
+  const r=Math.abs(s)%10;
+  if(r<2)return{label:'3 Hard questions',profile:[{d:'hard'},{d:'hard'},{d:'hard'}]};
+  if(r<4)return{label:'4 questions (2H+2M)',profile:[{d:'hard'},{d:'hard'},{d:'medium'},{d:'medium'}]};
+  if(r<7)return{label:'5 questions (2H+2M+1E)',profile:[{d:'hard'},{d:'medium'},{d:'medium'},{d:'medium'},{d:'easy'}]};
+  return{label:'4 questions (1H+3M)',profile:[{d:'hard'},{d:'medium'},{d:'medium'},{d:'medium'}]};
+}
+
+function pickQ(pool,usedMap,topicKey,d,seed){
+  const p=(pool||[]).filter(q=>d==='any'||q.d===d);
+  if(!p.length)return null;
+  const fresh=p.filter(q=>!usedMap[topicKey+':'+q.n]);
+  const src=fresh.length?fresh:p;
+  return shuffle(src,seed)[0]||null;
+}
+
+const HEAVY=['DP','Graphs','Binary Tree'];
+const MED_T=['Stack & Queue','Heaps','BST','Sliding Window','Recursion','Tries','Design','DFS/BFS'];
+const LIGHT_T=['Arrays','Strings','Linked List','Binary Search','Greedy','Two Pointers','Bit Manipulation','Hashing','Math'];
+
+function genDay(seedBase){
+  let s=seedBase||(Date.now()&0xffffff);
+  const mode=getMode(s);
+  const totalSlots=mode.profile.length;
+  s=ns(s);
+  const hShuf=shuffle(HEAVY,ns(s));s=ns(s);
+  const mShuf=shuffle(MED_T,ns(s));s=ns(s);
+  const lShuf=shuffle(LIGHT_T,ns(s));s=ns(s);
+  const qs=[];
+  let hi=0,mi=0,li=0;
+  mode.profile.forEach((slot,i)=>{
+    s=ns(s);
+    // Last slot = real interview question
+    if(i===totalSlots-1){
+      const rFresh=REAL.filter(q=>!ST.usedReal[(q.src||'?')+':'+q.n]);
+      const rSrc=rFresh.length?rFresh:REAL;
+      const rq=shuffle(rSrc,s)[0];
+      if(rq)qs.push({...rq,topic:rq.t,src_tag:'real'});
+      return;
+    }
+    // Second-to-last slot = LearnYard question
+    const isLY=(i===totalSlots-2 && totalSlots>=4);
+    let topic;
+    if(slot.d==='hard'){topic=hShuf[hi%hShuf.length];hi++;}
+    else if(slot.d==='medium'){topic=(mi%2===0?mShuf:lShuf)[Math.floor(mi/2)%(mi%2===0?mShuf.length:lShuf.length)];mi++;}
+    else{topic=lShuf[li%lShuf.length];li++;}
+    if(isLY){
+      const q=pickQ(LY[topic],ST.usedLY,topic,slot.d,s)||pickQ(LY[topic],ST.usedLY,topic,'any',s)||pickQ(SHEET[topic],ST.usedSheet,topic,slot.d,s);
+      if(q)qs.push({...q,topic,src_tag:LY[topic]?.find(x=>x.n===q.n)?'ly':'sheet'});
+      return;
+    }
+    const useLY=(s%10)<3;
+    const pool1=useLY?LY[topic]:SHEET[topic];const used1=useLY?ST.usedLY:ST.usedSheet;
+    const pool2=useLY?SHEET[topic]:LY[topic];const used2=useLY?ST.usedSheet:ST.usedLY;
+    const tag1=useLY?'ly':'sheet';const tag2=useLY?'sheet':'ly';
+    const q=pickQ(pool1,used1,topic,slot.d,s)||pickQ(pool1,used1,topic,'any',s)||pickQ(pool2,used2,topic,slot.d,s)||pickQ(pool2,used2,topic,'any',s);
+    if(q){const inLY=LY[topic]?.find(x=>x.n===q.n);qs.push({...q,topic,src_tag:inLY?'ly':'sheet'});}
+  });
+  return{qs,mode};
+}
+
+function markUsed(qs){qs.forEach(q=>{if(q.src_tag==='sheet')ST.usedSheet[q.topic+':'+q.n]=1;else if(q.src_tag==='ly')ST.usedLY[q.topic+':'+q.n]=1;else if(q.src_tag==='real')ST.usedReal[(q.src||'?')+':'+q.n]=1;});}
+function unmarkUsed(qs){qs.forEach(q=>{if(q.src_tag==='sheet')delete ST.usedSheet[q.topic+':'+q.n];else if(q.src_tag==='ly')delete ST.usedLY[q.topic+':'+q.n];else if(q.src_tag==='real')delete ST.usedReal[(q.src||'?')+':'+q.n];});}
+
+let curDay=null;
+function initApp(){
+  const keys=Object.keys(ST.days);
+  if(!keys.length){newDay();return;}
+  let found=null;
+  for(let i=keys.length-1;i>=0;i--){const k=keys[i];if(!ST.days[k].qs.every(q=>ST.solved[k+':'+q.n])){found=k;break;}}
+  curDay=found||keys[keys.length-1];
+  renderDay(curDay);renderStats();renderTip();
+}
+
+function newDay(){
+  const num=Object.keys(ST.days).length+1;
+  const key='d'+num;
+  const{qs,mode}=genDay();
+  const tidx=ST.tipIdx||0;
+  ST.days[key]={num,qs,mode:mode.label,tipIdx:tidx};
+  ST.tipIdx=(tidx+1)%TIPS.length;
+  markUsed(qs);curDay=key;saveST();
+  show('main');renderDay(key);renderStats();renderTip();
+}
+
+function reshuffle(){
+  if(!curDay)return;
+  const d=ST.days[curDay];
+  unmarkUsed(d.qs);
+  const{qs,mode}=genDay(Date.now());
+  d.qs=qs;d.mode=mode.label;
+  markUsed(qs);saveST();renderDay(curDay);
+}
+
+function markAll(){
+  if(!curDay)return;
+  ST.days[curDay].qs.forEach(q=>ST.solved[curDay+':'+q.n]=1);
+  saveST();renderDay(curDay);renderStats();
+}
+
+function toggleQ(k,dk){
+  if(ST.solved[k])delete ST.solved[k];else ST.solved[k]=1;
+  saveST();
+  const inH=document.getElementById('v-hist').classList.contains('active');
+  if(inH)renderHistDay(dk);else renderDay(dk||curDay);
+  renderStats();
+}
+
+function badgeFor(q){
+  if(q.src_tag==='sheet')return`<span class="sh-badge">Striver A2Z</span>`;
+  if(q.src_tag==='ly')return`<span class="ly-badge">LearnYard</span>`;
+  return`<span class="re-badge">★ ${q.src||'Real interview'}</span>`;
+}
+
+function qHTML(q,k,dk){
+  const done=!!ST.solved[k];
+  const note=q.src_tag==='real'&&q.note?`<div class="qnote">${q.note}</div>`:'';
+  return`<div class="qcard${done?' dim':''}"><div class="chk${done?' on':''}" onclick="toggleQ('${k}','${dk}')">${done?'✓':''}</div><div class="qi"><span class="qn${done?' s':''}">${q.n}<a class="lk" href="${q.lc||'#'}" target="_blank">open ↗</a></span>${note}<div class="tags"><span class="tag ${q.d==='easy'?'te':q.d==='medium'?'tm':'th'}">${q.d}</span><span class="tag tco" style="${ts(q.topic||q.t)}">${q.topic||q.t}</span>${badgeFor(q)}</div></div></div>`;
+}
+
+function renderDay(key){
+  const d=ST.days[key];if(!d)return;
+  document.getElementById('dlbl').textContent='Day '+d.num;
+  const topics=[...new Set(d.qs.map(q=>q.topic||q.t))];
+  document.getElementById('dsub').textContent=topics.join(' · ');
+  const done=d.qs.filter(q=>ST.solved[key+':'+q.n]).length;
+  document.getElementById('dpr').textContent=(d.mode||'')+' · '+done+'/'+d.qs.length+' done';
+  const counts={};d.qs.forEach(q=>counts[q.d]=(counts[q.d]||0)+1);
+  document.getElementById('dchips').innerHTML=Object.entries(counts).filter(([,v])=>v>0).map(([k,v])=>`<span class="diff-chip ${k[0]}">${v} ${k}</span>`).join('');
+  document.getElementById('qlist').innerHTML=d.qs.map(q=>qHTML(q,key+':'+q.n,key)).join('');
+}
+
+function renderTip(){
+  const idx=curDay&&ST.days[curDay]?ST.days[curDay].tipIdx:(ST.tipIdx||0);
+  const tip=TIPS[idx%TIPS.length];
+  const labels={algo:'Algorithm',sys:'System Design',pattern:'Pattern',trick:'Interview Trick'};
+  document.getElementById('tip-wrap').innerHTML=`<div class="tip-card"><div class="tip-label">Today's interview insight</div><span class="tip-type ${tip.type}">${labels[tip.type]||tip.type}</span><div class="tip-title">${tip.title}</div><div class="tip-body">${tip.body}</div><div class="tip-meta">${tip.meta}</div></div>`;
+}
+
+function renderStats(){
+  const solved=Object.keys(ST.solved).length;
+  const daysDone=Object.keys(ST.days).filter(k=>ST.days[k].qs.every(q=>ST.solved[k+':'+q.n])).length;
+  const shT=Object.values(SHEET).reduce((a,v)=>a+v.length,0);
+  const lyT=Object.values(LY).reduce((a,v)=>a+v.length,0);
+  const rT=REAL.length;
+  const used=Object.keys(ST.usedSheet).length+Object.keys(ST.usedLY).length+Object.keys(ST.usedReal).length;
+  const pct=Math.round((used/(shT+lyT+rT))*100);
+  document.getElementById('s1').textContent=solved;
+  document.getElementById('s2').textContent=daysDone;
+  document.getElementById('s3').textContent=Math.max(0,shT+lyT+rT-used);
+  document.getElementById('s4').textContent=pct+'%';
+  document.getElementById('gfill').style.width=pct+'%';
+}
+
+function show(v){document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));document.getElementById('v-'+v).classList.add('active');if(v==='hist')renderHist();}
+
+function renderHist(){
+  const keys=Object.keys(ST.days);
+  document.getElementById('hpills').innerHTML=keys.map(k=>{const d=ST.days[k];const full=d.qs.every(q=>ST.solved[k+':'+q.n]);const cur=k===curDay;return`<button class="pill${full?' full':''}${cur?' cur':''}" onclick="renderHistDay('${k}')"}>Day ${d.num}</button>`;}).join('');
+  if(keys.length)renderHistDay(keys[keys.length-1]);
+  else document.getElementById('hday').innerHTML='<p style="color:#888;font-size:13px;padding:.5rem 0;">No days yet.</p>';
+}
+
+function renderHistDay(key){
+  const d=ST.days[key];if(!d)return;
+  const done=d.qs.filter(q=>ST.solved[key+':'+q.n]).length;
+  document.getElementById('hday').innerHTML=`<div style="font-size:14px;font-weight:600;margin-bottom:.5rem;color:#111;">Day ${d.num} — ${d.mode||''} — ${done}/${d.qs.length}</div><div class="qlist">${d.qs.map(q=>qHTML(q,key+':'+q.n,key)).join('')}</div>`;
+}
+
+function doExport(){const raw=JSON.stringify(ST,null,2);document.getElementById('ebox').value=raw;const m=document.getElementById('emsg');m.className='msg ok';m.textContent='Exported! Copy and save this text.';}
+function doCopy(){const box=document.getElementById('ebox');if(!box.value)doExport();navigator.clipboard.writeText(box.value).then(()=>{const m=document.getElementById('emsg');m.className='msg ok';m.textContent='Copied!';}).catch(()=>{box.select();document.execCommand('copy');});}
+function doImport(){const raw=document.getElementById('ibox').value.trim();const m=document.getElementById('imsg');if(!raw){m.className='msg er';m.textContent='Paste your data first.';return;}try{const p=JSON.parse(raw);if(!p.days||!p.solved)throw 0;localStorage.setItem(KEY,raw);ST=p;m.className='msg ok';m.textContent='Restored! Progress loaded.';renderStats();initApp();show('main');}catch(e){m.className='msg er';m.textContent='Invalid data. Make sure you pasted the full export.';}}
+
+initApp();
+</script>
+</body>
+</html>

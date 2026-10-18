@@ -1,0 +1,23 @@
+Attacks CSRF, XSS, CORS, SQL Injection
+
+1. CSRF (Cross site Request Forgery):
+- CSRF tricks the browser into making unwanted request to a site (via links) where user is already authenticated. Applicable where state or session is managed.
+
+Prevention: by generating a CSRF token, this ensures that request is originated from a legitimate source. As authenticate forms or website will append the csrf token in the request which server will use to validate the token created at the time of HTTP session creation.
+
+2. XSS (Cross Site scripting):
+- It is used to steal session or deform a website. E.g. someone has put some script (<script>alert("XSS")</script>) in the comment. When comments get loaded in the browser, this script will get executed.
+
+prevention: do input validation
+
+3. CORS (Cross-Origin Resource Sharing):
+It is a security feature, where server allows request to from the same origin only unless allowed. Origin will change, if protocol, domain or port gets changed.
+
+use "Access-control-allow-origin" and other header to allow the cross-origin request.
+
+4. SQL Injection:
+In this, attacker can put some strings in search which can retrieve all data. 
+E.g. Get employeeDetails/1 --> this will get employee details of employee_id 1. But attacker can put something like:
+Get find/employeeDetails"| 1 = 1", this will execute for always true, and return all data rather for employee_id = 1.
+
+Prevention: Use parameterized query in sql fetching.

@@ -1,0 +1,49 @@
+SQL VS NOSQL
+
+1. SQL
+
+a. Structure -
+-> Predefined schema is required before using it.
+-> Relations b/w different tables
+
+b. Nature
+-> data is centeralized i.e. whole information is present inside same server (might be in different tables)
+
+c. Scale
+-> We can scale sql db in vertical (increase RAM/Storage) manner not horizontal(sharding).
+
+d. Property
+-> Ensures data Integrity via ACID properties.
+
+2. NOSQL: (No SQL or Not Only SQL)
+
+a. Structure:
+-> can be of 4 types:
+-- key-value DB: can query based on key just like DyanmoDB.
+-- Document DB: similar to key-value DB, but can also query based on value, e.g. Mongodb.
+-- Column-wise DB: similar to key-value DB, but value is a pair of <column,value>, i.e. 1001: [name: kunal], [age: 21]. different keys can have different number of columns.
+-- graph db: it is a node-edge relation db. Used in social media networking application, recommendation engine.
+
+b. Nature:
+-> nature of data is distributed among different servers to balance the load.
+
+c. Scale:
+-> can happen in horizontal direction using sharding
+
+d. Property:
+-> Uses BASE property:
+-- Basically Available(HA) due to replication
+-- Safe state (changes state without user interaction due to syncup b/w different replicas)
+-- Eventual Consistency (might get stale data during first fetch, but eventually get the latest data)
+
+When to use What (sql or NoSQL)
+
+Use sql when you have to:
+a. compute complex queries.
+b. when there is a hierarchy in data (parent-child)
+c. maintain data consistency like financial data.
+
+Use NoSQL when you have to:
+a. maintain high availability of data
+b. maintain high performance of systems (faster data fetching)
+c. can handles large data set.

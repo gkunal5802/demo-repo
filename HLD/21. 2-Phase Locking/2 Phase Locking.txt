@@ -1,0 +1,50 @@
+2 Phase Locking 
+It is used in pessimistic concurrency control.
+
+Three types of 2PL:
+
+1. Basic 2PL:
+Phase 1: Growing phase
+- In this, trxn can only acquire locks on different resources by lock manager
+- Lock manager, will either grant or denied the lock depending on whether resource is free or not.
+
+Phase 2: Shrinking phase
+- In this, trxn will only release the lock and no new lock will be acquired.
+
+Problems with basic 2PL:
+1. Dead lock can happen during read as well as write.
+2. Cascading aborts.
+
+Case1: Suppose trxn 1 take X(A) and trxn 2 take X(B) simultaneously. Now trxn 1 want to take X(B) and trxn 2 want X(A). both are waiting for each other to release the locks. Hence deadlock.
+
+Case2: Suppose trxn 1 take S(A) and trxn 2 take S(A) simultaneously. Now trxn 1 want to take X(A) and trxn 2 want X(A). both are waiting for each other to release shared locks. Hence deadlock.
+
+strategies to avoid dead lock
+1. Timeout: But this could somtime mistakenly timeout trxn which are not in deadlock but taking long time to finish.
+2. Wait-for-graph: Creates a directed graph representing trxn with nodes and resources with edges. Scheduler check any cycles present in graph and remove the victim to avoid dead lock.
+
+methods to remove victim:
+a. amount of effort trxn has put in till now
+b. amount of effort required to finish the trxn
+c. cost of aborting the trxn
+d. the number of cycles trxn is involved in.
+
+3. Conservative 2PL:
+* also known as static 2PL
+* all the locks are acquired at the start of transaction, to avoid deadlocks.
+* after processing, shrinking phase starts, locks are released.
+* Bad concurrency and extra overhead for scheduler to know all the read and write operation in advance.
+
+4. Timestamp based deadlock detection:
+a. Wait-Die: old trxn waits for the new one. If ts(T1) < ts(T2), T1 will wait for T2 to complete its work. Old Trxn = Higher priority
+Either new trxn gets the lock or it will die (aborted)
+b. Wound-wait: Old trxn gives wound to new one. if ts(T1) < ts(T2), T2 will abort and release the locks. Either new trxn will get the lock or it will wait.
+
+Cascading Abort:
+When a T1 updates a resource and release the lock on that, T2 read the updated value of A. But sometime later, T1 aborts the transaction and resets it value. This leads to dirty read of A. Hence T2 also needs to aborted. This is called cascading abort.
+
+Prevention strategy:
+Strong strict 2PL or rigorous 2PL:
+In this, locks are gradually acquired as and when required but release only when Trxn either commit or abort the process.
+
+This avoids cascading but deadlocks can still happen. So, use WFG to avoid deadlocks.

@@ -1,0 +1,25 @@
+Problem:
+Generic url is like: https://www.youtube.com/watch?v=C7_--hAhiaM&list=PL6W8uoQQ2c63W58rpNFDwdrBnq5G3EfT7
+but we want to create a short and clean url to store. Why?
+
+How short we want our url to be depends on traffic?
+if we want to handle 10M url/day then 3650M url/year and for 100 years it is 3.5Billion urls.
+and we can use only 62 charactes like: [0-9][a-z][A-Z]
+
+therefore, with 7 characters of these 62, we can generate 3.5 trillion unique code which are enough for next 200-300 years.
+
+Now the problem comes with how to make it short and how to store in db.
+
+why can't we use hash functions like md5 or sha1
+MD5 takes 128bit -> 16bytes -> 1 byte -> 8 bit -> 2 hexa character i.e. = 32 hexa characters
+SHA1 take 160bit -> 20bytes -> 40 hexacharcters
+
+issues with making url short 
+1. generate unique ID
+2. length could be different
+
+
+1. ticket service
+2. snowflake (uses timestamps and machine code and sequence number to generate unique id) -> twitter uses it.
+3. zookeeper (generate unique id in distributed env)
+4. generate id in db (scaling and sychnorization problem)

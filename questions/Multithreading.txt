@@ -1,0 +1,36 @@
+Multithreading:
+Concept in which multiple threads can perform tasks concurrently or parallely.
+
+Thread Creation:
+
+It can be created in 2 ways:
+1. Extending a Thread class
+2. Implementing a Runnable interface
+
+Lifecycle of thread:
+
+New -------> Runnable -- Running --> Terminated
+	 	/   \
+  	sleep()/     \wait()
+	      /	      \
+           Blocked  Timed_waiting
+
+Methods used to interrupt a thread:
+
+1. sleep()
+2. wait()
+3. join()
+4. yield()
+5. interrupt()
+6. isAlive()
+
+Problems with Multithreading:
+1. Race Condition
+2. Visibility
+3. Ordering
+4. Non-atomic operations
+
+Ways to Avoid above problems:
+1. Use of Synchronized keyword with methods or block
+2. Use Visibility keyword
+3. using different locks like object locks or class locks using synchronized keyword only

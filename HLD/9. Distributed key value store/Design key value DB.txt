@@ -1,0 +1,46 @@
+Design key value DB
+
+
+where to use it:
+Amazon -> add to cart feature. DyanmoDB
+
+Goals:
+1. scalability
+2. Decentralization
+3. Eventual Consistency
+
+Steps to achieve the above goals
+1. Partition
+2. Replication
+3. Get and Put operation
+4. Data Versioning
+5. Gossip Protocol
+6. Merkle tree
+
+
+1. PARTITIONING:
+-> Using consistent hashing, we can make more partitions of hash table where we store the data which enhances scalability.
+-> 
+
+2. Replication
+-> maintaining coordinator, preference list. where our replicas stored in server
+-> need to create copy of keys stored in server and put those server in preference list.
+-> we may have different algos to select servers to copy to. (server in different dc, clockwise select servers in a ring)
+
+3. get and put operation
+-> putting the key in different replicas as per preference list
+-> getting the value for a key from coordinator and repliacs using load balancer (maybe generic or partitioning)
+-> use of R+W > N
+
+4. Data versioning
+-> repliacs may store different values for same key due to network failure.
+-> use of vector clock which will store the data stored in which server and give a counter/version to it. eg. k1[s1,1]
+-> this will avoid inconsistency in response of a request by maintaining latest version of change. And during conflict, return all the latest changes.
+-> client has algo to take care of multiple responses.
+-> this helps in achieving eventual consistency
+
+5. Gossip Protocol
+-> each server gossip about each other and share their up status, and range of keys they are handling, who is coordinator of each range etc.
+
+6. Merkle tree
+-> helps to find the range of keys need to check during replicas updation. (uses some binary tree like structure)

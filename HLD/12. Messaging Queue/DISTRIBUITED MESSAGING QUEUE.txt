@@ -1,0 +1,57 @@
+DISTRIBUITED MESSAGING QUEUE
+
+What is Messaging Queue? Why it is needed?
+What are point-to-point and pub/sub messaging queue types?
+How messaging queue works in RabbitMQ and KAFKA?
+what are the components of KAFKA?
+What are the components of RabbitMQ?
+what are different exchange logic involve?
+what happens when queue size limit is reached?
+What happens when queue goes down?
+what happens when consumer goes down?
+what happens when consumer is not able to process the msg?
+
+Q.1 What is Messaging Queue? Why it is needed?
+Ans queue to store messages between producer and consumer. Kafka is pull based and RabbitMQ is push based
+usecase: 
+1. Asynchronous Nature which in turn reduces latency.
+2. Retry capability when consumer service fails - failed message can again be added back to queue.
+3. Pace matching - Multiple producers produces msgs at different rate(10msg/sec, 15msg/sec, 30msg/sec) but consumer can consume at certain rate only (12msg/sec). Messaging queue helps each producer application to match that pace.
+
+Q.2 What are point-to-point and pub/sub messaging queue types?
+
+In p2p, one producer produces the message for a particular consumer. while in pub/sub, one publisher publishes the message, it goes to exchange logic which broadcasts the messages to all the messaging queues and it reaches all the subscribers.
+
+How messaging queue works?
+
+kafka is most popular MQ. It has various components:
+1. Producer
+2. Consumer
+3. Consumer groups
+4. Broker
+5. Topic
+6. Partition
+7. offset
+8. Cluster
+9. Zookeeper
+
+what happens when queue size limit is reached?
+we will have multiple brokers (multiple machines).
+
+What happens when queue goes down?
+one topic called leader usually has its replica in another broker called follower. when leader goes down, follower takes the lead.
+
+what happens when consumer goes down?
+secondary consumer if present in same consumer group, will take its place and start reading the messages from previous offset only.
+
+what happens when consumer is not able to process the msg?
+If a particular message is failing, we will retry the processing the message x times and not increase the offset. If still it fails then we will put it in the dead letter queue and move forward.
+
+
+How RabbitMQ works?
+it has exchange logic between producer and MQ. This exchange logic can be of many types:
+
+1. fanout - broadcast to all msg queues
+2. direct exchange - sends to only queue whose key matches
+3. wild exchange - matches certain part of key (e.g. key = ind_123, logic says allow all with *123).
+

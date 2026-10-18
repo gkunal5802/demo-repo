@@ -1,0 +1,58 @@
+DNS or Domain Name Server:
+Translates domain name into ip address
+
+www.google.com
+
+. root
+.com top level domain
+google secondary level domain
+www. sub domain
+
+combined called FQDN fully qualified domain main
+domain name is google.com
+
+DNS checks local cache (stub resolver) before querying DNS resolver for IP address. run ipconfig/displaydns to check local cache 
+
+The command gives following fields:
+1. Record name: domain name or sub-domain name	
+2. CNAME record: alias of one domain to another (present only type is 5)
+3. A record: contains actual IP (present only when type is 1)
+
+example:
+    Record Name . . . . . : oneocsp.microsoft.com
+    Record Type . . . . . : 5
+    Time To Live  . . . . : 40
+    Data Length . . . . . : 8
+    Section . . . . . . . : Answer
+    CNAME Record  . . . . : oneocsp-microsoft-com.a-0003.a-msedge.net
+
+
+    Record Name . . . . . : oneocsp-microsoft-com.a-0003.a-msedge.net
+    Record Type . . . . . : 5
+    Time To Live  . . . . : 40
+    Data Length . . . . . : 8
+    Section . . . . . . . : Answer
+    CNAME Record  . . . . : a-0003.a-msedge.net
+
+
+    Record Name . . . . . : a-0003.a-msedge.net
+    Record Type . . . . . : 1
+    Time To Live  . . . . : 40
+    Data Length . . . . . : 4
+    Section . . . . . . . : Answer
+    A (Host) Record . . . : 204.79.197.203
+
+
+How DNS resolver resolves request?
+Two ways: recursive and iterative.
+
+A. RECURSIVE:
+1. DNS Resolver asks root (.), does it have any ip address for this domain. There are 13 root servers to resolve the request.
+2. If root doesn't have answer, it says ask TLD.
+3. If TLD, says I don't have answer, ask godaddy authoritative server.
+4. Now if it has, return the ip. 
+
+DNS Zone: it helps to resolve the different sub-domains separately.	
+
+B. ITERATIVE:
+In this DNS client is responsible for making above requests not the DNS resolver.

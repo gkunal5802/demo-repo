@@ -1,0 +1,35 @@
+API Gateway:
+
+It is different from Load balancer, it helps to route the traffic to different microservices.
+
+Features:
+1. Routing the traffic and API composition
+2. Authorization
+3. Rate Limiting:
+- manage burst limit: avoid 429 error.
+- API throttling: blocking a user hitting particular api in a particular time span
+- Ip based blocking
+- API Queues: handle thundering herd issue by holding request to a API.
+4. Service Discovery
+
+How does Api gateway handle millions of request in a second?
+
+
+How 2 microservices communicate with each other?
+
+Microservice should have following capabilities:
+1. Service discovery
+2. Load balancing (client-side)
+3. Authorization
+4. Circuit Breaker
+5. Retry capability
+6. Deployment strategy (client-side)
+7. Telemetry: need to collect data which helps in monitoring and analysis of a component.
+
+If Microservice1 wants to communicate with Microservice2, then it will ask service discovery the location of Microservice2.
+Service discovery will either return ip and port of instances of Microservice2 or it will return ip and port of load balancer of Microservice2.
+
+Either we create each capability on our own or we can use Service MESH.
+
+
+

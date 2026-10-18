@@ -1,0 +1,102 @@
+WhatsApp System Design (Chat Application)
+
+1. Requirement Gathering:
+Functional Req: 1:1 send/receive msg, group chat support, login/authentication, last seen
+Non-Func Req: Scalibility, huge Traffic, availability, low latency.
+
+2. Back of the envelope:
+Total Users: 2Billion
+DAU: 50Million
+
+messages per day: 1 person sends 10Msg to 4 people i.e. 40messages
+
+Traffic: 50Million x 40msgs = 2000 Million or 2Billion msg/day
+for over 10yrs = 2Billion x 365 x 10 = 7300 Billion msgs/10yrs
+
+Storage:
+each msg is of 100 characters i.e. 100 bytes
+Everyday 2Billion x 100bytes = 200TB of storage is required
+
+3. Design application
+
+It works in p2p fashion. But to maintain chat history, we need a chat server in between.
+
+   user/server mapping(zookeeper)
+		|
+		|
+user1 ----> chat Server1 --> NOSQL DB
+		|
+		|
+user2 <---- chat server2 --> NOSQL DB (Cassandra column-wise db)
+
+
+REQUIREMENT 1: send/receive 1:1 msg
+
+They communicate over websockets protocol. Because user can send multiple messages over single connection, connection remains open.
+
+When user1 creates account/comes online/establish connection, it first communicates with user/server mapping service to get a chat server (chatServer1) over which the msgs are stored. then chat server will communicate with chat server of user 2(chatserver2). then chatserver2 will send the msg to user2.
+
+sendMsg(from,to,msg,type);
+
+During offline situation: when user1 sends msg to user2, if user2 is offline or gets disconnected from its server, chat server of user1 will send store the msg in db and when user2 comes online it will send the msg to newly assigned chatserver.
+
+
+Requirement 2: LOGIN
+
+		 -----> Group Service --> NOSQL	
+		|
+		 -----> user login service ---> SQL	
+    http	|		|
+  ------------ <LB> --> user/server Mapping (zookeeper)---> Redis
+ |				|
+USER ---------------------> CHAT SERVER --> NOSQL
+
+
+whenever user tries to login and user/server mapping assigns a server to store its msgs.
+
+Requirement 3: Group chat support
+
+When user sends a message to a group, chat server will get the info about group members from group service and send msg to their respective chat server.
+
+Requirment 4: online/offline status
+
+application uses presence system. It sends a heartbeat every few seconds, if it get response, it will mark the status as online in user/server mapping otherwise after 1 minute of no response it will mark this as offline.
+
+Selection of DB
+
+what are the read operations: read msgs, group chat, status, group members details, user profile.
+what are the write operations: send msgs, update/send photo.
+
+We don't need complex query or joins to do such operations. We need highly available, scalable application to search a message in such a database with low latency, so will use NoSQL DB.
+
+Cassandra is a column-wise DB which is used here as:
+msgId: [from,to,timestamp]
+
+   Client (Mobile/Web)
+
+                    |
+              Load Balancer
+                    |
+          ---------------------
+          |                   |
+      Chat Server        Chat Server
+          |                   |
+          -----------+---------
+                      |
+             WebSocket Cluster
+                      |
+        --------------------------
+        |           |            |
+    Redis       Kafka MQ      Presence
+      |             |            |
+      |             |            |
+   Cache      Message Queue    Redis
+                      |
+               Message Service
+                      |
+             Cassandra / DynamoDB
+                      |
+                Object Storage
+
+
+

@@ -1,0 +1,387 @@
+JAVA
+
+---------------------------------------------------------------------------------------------------------------------------------------
+JAVA Questions
+
+- Difference between Fail-Fast and Fail-Safe?
+- How does ConcurrentHashMap work internally?
+- What is a Daemon Thread?
+- Comparable vs Comparator?
+- SOLID principles with real-time example?
+- Optional: isPresent() vs ifPresent()?
+- How does JVM handle memory management?
+
+---------------------------------------------------------------------------------------------------------------------------------------
+➤ Spring Boot & Microservices
+
+- How do you implement JWT authentication?
+- OAuth2 vs JWT?
+- RestTemplate vs WebClient?
+- How do microservices communicate?
+- What is API Gateway and why is it required?
+- How to implement Global Exception Handling?
+- How does @Transactional work internally?
+
+➤ Database & JPA
+
+1. First-level vs Second-level cache?
+- The first-level cache is associated with a Hibernate Session / JPA EntityManager.
+- The second-level cache is associated with the Hibernate SessionFactory / JPA persistence unit rather than a single session.
+2. What is N+1 problem?
+3. How to optimize slow queries?
+4. How do you handle concurrent updates? - Optimistic and pessimistic locking. Atomic DB locking and distributed locking
+5. IoC vs DI? 
+- IoC is a broader design principle where control over object creation and dependency management is transferred from the application code to an external container or framework. Dependency Injection is one of the primary techniques used to achieve IoC, where dependencies are supplied to an object rather than the object creating them itself.
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+1. Explain memory management in java.
+2. How microservices communicate with  each other in asynchronous way .
+3. Spring boot flow.
+4. What if two interface have same method how will you resolve this when a class implement both.
+5. Diamond problem caused by multiple inheritance ,how can we resolve it.
+6. Explain reentrantlock.
+7. How can we split work between threads and collect them - using futures and completeableFuture. Divide the tasks among different threads created by executorService in thread pools.
+8. How to create immutable class.
+9. Explain singleton design pattern.
+10. What are indexes in sql.
+An index is a separate data structure maintained by the database to speed up data retrieval. Instead of scanning every row of a table, the database can use the index to quickly locate matching rows. Indexes are commonly used on columns involved in WHERE, JOIN, ORDER BY, and sometimes GROUP BY operations. However, indexes consume storage and add overhead to INSERT, UPDATE, and DELETE operations, so we shouldn't create unnecessary indexes.
+
+---------------------------------------------------------------------------------------------------------------------------------------
+
+1. What actually breaks when two threads write to the same HashMap?
+ - HashMap is not thread-safe. Concurrent writes can cause lost updates, inconsistent internal state, and problems during resizing because multiple threads can modify the bucket array without synchronization.
+
+2. Your counter is volatile and still gives the wrong total. Why?
+ - volatile buys visibility, not atomicity. count++ is read, modify, write. Three steps, no lock. Fix is AtomicInteger, Synchronization or LongAdder under heavy contention.
+
+3. You put Transactional on a method and called it from another method in the same class. What happens?
+ - Spring's @Transactional is implemented through AOP proxies. If a transactional method is called from another method in the same class using this.method(), the call bypasses the Spring proxy, so the transactional advice on the called method is not applied. If the outer method itself is transactional, however, the inner method executes within that existing transaction.
+
+4. Your service runs 200 threads on a pool of 10 connections. Traffic triples. CPU sits at 20%. What is going on?
+ - Your threads are parked waiting on HikariCP, not working. The bottleneck is the pool, not the CPU. Add more servers and it gets worse.
+
+5. Why is double checked locking broken without volatile?
+ - Another thread can see a non null reference to a half constructed object. The write gets reordered. Rare, real, and brutal to debug.
+
+6. Your query has an index and the database still does a full scan. Why?
+ - A function wrapped around the indexed column. Wrong leading column of a composite index. Implicit type conversion. All three kill it.
+
+7. Where does a memory leak hide in a language that has garbage collection?
+ - Static collections that only grow. ThreadLocals never removed inside a thread pool. Listeners never unregistered. GC cannot free what you are still holding.
+
+8. What happens to your in flight requests when Kubernetes sends SIGTERM?
+ - Without graceful shutdown they die mid write. Half the answer is the shutdown hook. The other half is a preStop delay so traffic stops reaching you first.
+
+9. Your Kafka consumer commits the offset before processing the message. What did you just choose?
+ - At most once. Crash after the commit and that message is gone forever. Commit after processing and you chose at least once, which means you now need idempotency.
+
+10. You mutate a field on an object already used as a HashMap key. What happens to it?
+ - The hashCode changes. The entry stays in the old bucket. containsKey returns false for the exact object you put in. It is in the map and unreachable
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+1. Duplicate Payment
+
+Two identical payment requests arrive at the same time. How would you prevent the customer from being charged twice?
+
+2. Double Booking
+
+Two users try to book the same hotel room simultaneously. Both see the room as available. How would you prevent double booking?
+
+3. Slow REST API
+
+Your API takes 30 seconds because it calls three downstream services. How would you optimize the response time?
+
+4. Kafka Consumer Down
+
+Your Kafka consumer is unavailable for 30 minutes.
+What happens to the messages when the consumer comes back?
+
+5. HashMap Concurrency
+
+Multiple threads are reading and updating the same HashMap. What problems can occur and how would you fix them?
+
+6. High CPU Usage
+
+Your Spring Boot application suddenly reaches 95% CPU and thousands of threads are created. How would you troubleshoot it?
+
+7. Memory Issue
+
+Application memory keeps increasing and eventually the pod crashes with OutOfMemoryError. How would you identify the root cause?
+
+8. Kubernetes Issue
+
+One pod is consuming 95% CPU while other pods are normal. What would you check first?
+
+9. JWT / 401 Error
+
+A user sends a JWT token, but the REST API still returns 401 Unauthorized. How would you troubleshoot it?
+
+10. Database Performance
+
+An API that was previously fast becomes slow after the database grows to millions of records. What would you check?
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+ How does Spring Boot determine which auto-configuration to apply?
+→ What happens internally when you add spring-boot-starter-web?
+→ Why does Spring Boot follow Convention over Configuration?
+→ How does Spring Boot load application.properties internally?
+→ What is the exact startup flow of a Spring Boot application?
+→ What is the difference between @ComponentScan and @SpringBootApplication?
+→ How does Spring Boot automatically detect embedded Tomcat?
+→ What happens when two beans of the same type exist without @Qualifier?
+→ How does Spring Boot load profile-specific configurations?
+→ What is the role of SpringFactoriesLoader?
+→ How did Spring Boot eliminate the need for XML configuration in most cases?
+→ What is the internal difference between @RestController and @Controller?
+→ How does Spring Boot manage dependency versions automatically?
+→ What is the complete lifecycle of a Spring Bean?
+→ How does Spring Boot handle externalized configuration?
+→ What happens when both application.yml and application.properties exist?
+→ How does Spring Boot integrate with Actuator internally?
+→ What is the difference between a @Configuration class and a normal class?
+→ How does Spring Boot automatically create a DataSource?
+→ What is the practical use of CommandLineRunner?
+→ How does Spring Boot handle exception translation?
+→ What is the difference between @EnableAutoConfiguration and @Import?
+→ What happens when you exclude an auto-configuration class?
+→ Why is Spring Boot well-suited for microservices?
+→ What is the difference between a fat JAR and a normal JAR?
+→ How does Spring Boot handle logging by default?
+→ How does Spring Boot determine server port priority?
+→ What happens internally when you hit a REST endpoint?
+→ Why is Spring Boot preferred for cloud-native applications?
+→ What are the most common Spring Boot performance mistakes?
+
+---------------------------------------------------------------------------------------------------------------------------------------
+
+𝗝𝗩𝗠 & 𝗝𝗮𝘃𝗮 𝗜𝗻𝘁𝗲𝗿𝗻𝗮𝗹𝘀
+🔹 Two objects have the same hashCode but are not equal. What exactly happens during HashMap.get()?
+🔹 Why can changing a field used by hashCode() after inserting an object into a HashSet make that object impossible to find?
+🔹 Can an object be garbage collected while one of its methods is still executing? Explain.
+🔹 How would you investigate an OutOfMemoryError when heap usage appears normal?
+🔹 What happens between new MyObject() and the constructor actually executing?
+
+𝗖𝗼𝗻𝗰𝘂𝗿𝗿𝗲𝗻𝗰𝘆 & 𝗠𝘂𝗹𝘁𝗶𝘁𝗵𝗿𝗲𝗮𝗱𝗶𝗻𝗴
+🔹 10 threads execute counter++ on a shared volatile int. Why can the final value be incorrect?
+🔹 You replace volatile int with AtomicInteger. What changes internally?
+🔹 When can CAS-based concurrency perform worse than locking?
+🔹 A ThreadPoolExecutor has corePoolSize = 10, maxPoolSize = 50 and an unbounded queue. Why might it never create more than 10 threads?
+🔹 A production service has 500 threads but CPU utilization is only 20%. What could those threads be doing?
+🔹 Two services acquire locks A and B in opposite order. How would you prove a deadlock exists and eliminate it?
+🔹 Why doesn't making every method synchronized automatically make a class thread-safe?
+
+𝗦𝗽𝗿𝗶𝗻𝗴 & 𝗗𝗶𝘀𝘁𝗿𝗶𝗯𝘂𝘁𝗲𝗱 𝗦𝘆𝘀𝘁𝗲𝗺𝘀
+🔹 Why might @Transactional have no effect when one method calls another method in the same class?
+🔹 A transaction updates the database and then calls a payment service. Payment succeeds but the database transaction rolls back. How would you design around this?
+🔹 Your API has a 2-second timeout but the downstream service takes 10 seconds. Where should the timeout be enforced?
+🔹 A Kafka consumer crashes after updating the database but before committing the offset. What happens next?
+🔹 How would you make Kafka message processing idempotent?
+
+𝗣𝗿𝗼𝗱𝘂𝗰𝘁𝗶𝗼𝗻-𝗟𝗲𝘃𝗲𝗹 𝗣𝗿𝗼𝗯𝗹𝗲𝗺 𝗦𝗼𝗹𝘃𝗶𝗻𝗴
+🔹 API latency increases from 200ms to 5 seconds, while CPU and heap usage remain normal. What do you investigate first?
+🔹 Database CPU is only 40%, but the application is timing out while waiting for connections. What could cause this?
+🔹 GC pauses are low and heap usage is stable, but the JVM keeps creating more threads. What could be happening?
+🔹 A cache improves response time by 10× but occasionally returns stale financial data. How would you handle consistency?
+
+
+---------------------------------------------------------------------------------------------------------------------------------------
+
+DSA SCENARIOS BASED QUESTION
+
+Q1. "A gaming platform has 1 million users. During registration, check if a username is taken instantly."
+→ HashSet. O(1) lookup. Follow-up: "Memory concern?" → Bloom Filter. Probabilistic but uses 10x less memory.
+
+Q2. "Build a cache with max 10,000 items. Evict the least recently used. All operations must be O(1)."
+→ HashMap + Doubly Linked List. HashMap for O(1) lookup. Linked list for O(1) recency tracking. Every access moves the node to the head. Eviction removes the tail.
+
+Q3. "A stock trading app receives thousands of price updates per second. Show the top 10 most expensive stocks at any moment."
+→ Min-Heap of size 10. Why min and not max? Because you need to quickly remove the SMALLEST of the top 10 when a bigger price arrives. New price > heap min? Remove min, insert new. O(log 10) ≈ O(1).
+
+Q4. "Implement browser history with back and forward navigation."
+→ Two Stacks. Stack 1 is for the back. Stack 2 for forward. Navigate to the new page? Push current to Stack 1 and clear Stack 2.
+
+Q5. "Implement a queue using stacks."
+→ Two Stacks. Push to stack 1. For dequeueing—if stack 2 is empty, pour stack 1 into stack 2. Pop from stack 2. Amortized O(1).
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+
+𝗗𝗦𝗔
+1. Implement LRU/LFU Cache.
+2. Find Median from Data Stream.
+3. Word Ladder problem (shortest transformation).
+4. Merge K Sorted Lists.
+5. Detect Cycle in a Directed Graph.
+6. Maximum Subarray Sum (Kadane + variations).
+7. Kth Largest Element in a Stream.
+8. Design a Scheduler with Task Priorities.
+9. Two Sum variations (hashmap, sorted array, k-sum).
+10. Binary Search on Answer (capacity, days, weights).
+11. Longest Increasing Subsequence (DP + patience sorting).
+12. Clone Graph with random pointers.
+13. Serialize and Deserialize a Binary Tree.
+14. Trapping Rain Water (stack + two pointer).
+15. Top K Frequent Elements (heap + bucket sort).
+16. Word Break Problem (DP + trie).
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+
+1. What is the difference between Heap and Stack memory?
+2. How does the JVM memory model work?
+3. Explain the Class Loading lifecycle.
+4. What are Bootstrap, Platform, and Application ClassLoaders?
+5. How does Garbage Collection work internally?
+6. G1 GC vs ZGC vs Serial GC?
+7. What triggers a Full GC?
+8. How do you identify memory leaks in production?
+9. What is a Heap Dump and when would you analyze it?
+10. How does the JIT Compiler improve performance?
+11. What is Escape Analysis?
+12. What is Metaspace and how is it different from PermGen?
+13. How do you troubleshoot OutOfMemoryError?
+14. How do you troubleshoot high CPU usage in JVM applications?
+15. What tools do you use for JVM performance analysis?
+
+Spring @Transactional
+
+16. How does @Transactional work internally?
+17. Why does @Transactional sometimes not work?
+18. What exceptions trigger transaction rollback?
+19. What is the difference between REQUIRED and REQUIRES_NEW?
+20. Explain all transaction propagation types.
+21. What is transaction isolation?
+22. Explain all isolation levels.
+23. What causes dirty reads?
+24. What causes phantom reads?
+25. Why should API calls be avoided inside transactions?
+26. What happens during nested transactions?
+27. What is transaction synchronization?
+28. How do you debug transaction issues?
+29. What is the self-invocation problem?
+30. How does Spring use proxies for transaction management?
+
+Java Design Patterns
+
+31. What problem does the Factory Pattern solve?
+32. Factory Pattern vs Abstract Factory Pattern?
+33. When should you use the Builder Pattern?
+34. Why is Builder preferred for immutable objects?
+35. How do you implement a thread-safe Singleton?
+36. What are the drawbacks of Singleton?
+37. Explain the Strategy Pattern with a real-world example.
+38. When would you use the Observer Pattern?
+39. How is Observer used in event-driven systems?
+40. Adapter Pattern vs Decorator Pattern?
+41. What problem does the Proxy Pattern solve?
+42. How is the Template Method Pattern different from Strategy?
+43. What is Dependency Injection and which pattern does it use?
+44. Which design patterns are commonly used in Spring Framework?
+45. Which design patterns are most commonly used in Microservices?
+
+1. Process vs Thread – what is the difference?
+2. What is the Java Memory Model (JMM)?
+3. What is the happens-before relationship?
+4. synchronized vs volatile?
+5. synchronized method vs synchronized block?
+6. What is a Race Condition?
+7. How do you prevent Race Conditions?
+8. What is Thread Safety?
+9. What is Immutability and how does it help concurrency?
+10. What is CAS (Compare-And-Swap)?
+Locks & Synchronization
+11. ReentrantLock vs synchronized?
+12. ReentrantReadWriteLock vs ReentrantLock?
+13. What is StampedLock?
+14. What is a Deadlock?
+15. How do you detect and prevent Deadlocks?
+16. Deadlock vs Livelock vs Starvation?
+17. What is Thread Starvation?
+18. What is Lock Contention?
+19. What is Lock-Free programming?
+20. When would you use AtomicInteger instead of synchronized?
+Executors & Thread Pools
+21. How does ExecutorService work?
+22. ThreadPoolExecutor – explain its core components.
+23. Core Pool Size vs Maximum Pool Size?
+24. What happens when the ThreadPoolExecutor queue is full?
+25. FixedThreadPool vs CachedThreadPool?
+26. What is ForkJoinPool?
+27. How does Work Stealing work?
+28. ExecutorService vs ForkJoinPool?
+29. How do you size a thread pool for CPU-bound tasks?
+30. How do you size a thread pool for I/O-bound tasks?
+CompletableFuture
+31. Future vs CompletableFuture?
+32. thenApply vs thenCompose?
+33. thenCombine vs allOf?
+34. How does CompletableFuture handle exceptions?
+35. How do you implement timeout handling with CompletableFuture?
+36. How do you control the Executor used by CompletableFuture?
+37. What happens if CompletableFuture tasks block?
+38. How would you design parallel API calls using CompletableFuture?
+Virtual Threads
+39. How do Virtual Threads work?
+40. Virtual Threads vs Platform Threads?
+41. When should you use Virtual Threads?
+42. When should you NOT use Virtual Threads?
+43. How do Virtual Threads handle blocking I/O?
+44. Virtual Threads vs Thread Pool?
+45. What are the limitations of Virtual Threads?
+Real-World Production Scenarios
+46. CPU usage suddenly reaches 100%. How would you identify the problematic threads?
+47. Thread pool size is increasing but application throughput is decreasing. Why?
+48. Application has thousands of blocked threads. How would you investigate?
+49. Multiple requests are updating the same database record concurrently. How would you prevent inconsistent data?
+50. A Java microservice becomes slow under high traffic. How would you determine whether the problem is thread contention, database connections, CPU, or external I/O?
+Final -
+Describe a production concurrency issue you have faced. How did you identify the root cause, what tools did you use, and how did you fix it?
+
+
+------------------------------------------------------------------------------------------------------------------------------------------
+1. Concept of class metadata in the context of Java class loading?
+2. What happens when we try to reuse a stream?
+3. How can null be handled in TreeSet?
+4. How IdentityHashMap differs from a normal HashMap?
+5. Concept of a cache map? What are some benefits of using Streams?
+6. What’s the life cycle of a Spring bean?
+7. How do you build a REST API in Spring Boot?
+8. Difference between POST and PUT? Any other differences?
+9. What about the main infrastructure to support services?
+10. What happens if a microservice fails? How do you handle it?
+11. Can you tell me about API gateway? Which features are supported?
+12. How do you handle authentication? What’s the structure for JWT token?
+13. How do you implement a circuit breaker? How do you set up thresholds?
+14. What is the purpose of threshold? How does it work?
+15. Do you know about Kafka schema registry?
+16. Have you worked on microservices? Can you explain the 12 factors of microservices?
+17. Can you explain the DRY principle?
+18 Can you explain the difference between PUT and QUERY methods in HTTP protocols?
+19. Concept of parameterized testing in JUnit?
+20. Difference between mock and SPI annotations in JUnit?
+------------------------------------------------------------------------------------------------------------------------------------------
+1. What is the difference between putIfAbsent and computeIfAbsent in ConcurrentHashMap?
+4.  If two methods are synchronized but we still get a race condition, why does that happen?
+5.  Why can a race condition still occur if two methods are synchronized, and how would I investigate that?
+6.  In which scenario would I use a big HashMap?
+7.  Is there any possibility of getting a deadlock situation in HashMap?
+------------------------------------------------------------------------------------------------------------------------------------------
+ How does ConcurrentHashMap achieve thread safety?
+ ✅ wait() vs sleep() vs join()
+ ✅ JVM Class Loading Mechanism
+ ✅ equals() vs == and why hashCode() matters
+ ✅ How Garbage Collection works
+ ✅ volatile vs synchronized
+ ✅ Deep Copy vs Shallow Copy
+ ✅ Checked vs Unchecked Exceptions
+ ✅ ThreadLocal with real-world use cases
+Scenario:
+You're building a payment gateway where thousands of transactions run in parallel. How would you ensure thread-safe balance updates?
+🌱 Spring Boot
+✅ @Bean vs @Component
+ ✅ Spring AOP with real production examples
+ ✅ Circular Dependencies
+ ✅ JWT vs OAuth2
+ ✅ Spring Boot Auto Configuration
+ ✅ application.properties vs application.yml
+ ✅ ApplicationContext vs BeanFactory

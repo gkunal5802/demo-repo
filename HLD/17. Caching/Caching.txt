@@ -1,0 +1,69 @@
+Caching
+
+Caching is a technique to store frequently used data in a fast access memory (RAM) rather than slow access memory (disk). It reduces latency and fault tolerance.
+
+CLIENT ----> LB -----> SERVER ----> CACHING -------> DB 
+
+There are different types of caching present at different layers of system
+1. client side caching (browser side)
+2. CDN (store static data)
+3. Load balancers
+4. server side caching (like redis)
+
+Why distributed caching is required?
+
+1. Scalability is an issue if there is a central server.
+2. To avoid Single point of failure.
+
+Therefore, consistent hashing can be used in building distributed caching.
+
+Strategies in Caching:
+
+1. Cache Aside:
+* when server read any data it will check cache first, if found it is cache hit otherwise it is cache miss.
+* When cache miss, app server fetch the data from db and store it in cache also and return to client.
+
+Pros: 
+- Good for heavy read operation.
+- Even cache is down, request won't fail. It will read from DB.
+- Cache data structure can be different from DB.
+
+Cons:
+- For new read, data is always read from db.
+- It may leads to inconsistency, when write operations happen directly at db and cache is not updated.
+
+2. Read Through cache:
+* similar to cache aside but during cache miss, fetching the data from db is responsibility of cache only, our server application doesn't have to define any logic for that.
+
+Pros: Good for heavy read operation
+Cons: 
+- For new read, data is read from db.
+- data inconsistency during write between cache and db.
+- data structure should be same for cache and db
+- if cache is down, request will fail.
+
+3. Write Around cache:
+* server writes/updates (PUT) the data into db and invalidate any data already present in DB by marking a dirty flag true. But cache is no t updated. It works best with any of the cache read strategy.
+
+Pros: good for heavy read operation and solves inconsistency problem.
+Cons: 
+- for new read, data is read from db
+- if db fails, write operation will fail. Hence no fault tolerance.
+
+4. Write through cache:
+* In this, server first write into cache and then synchronously update the db also. These both should success.
+
+Pros: db and cache always consistent. cache hit chances increases.
+Cons: useful only with cache read strategies. 2 Phase commit is necessary to main transactional property. If db is down operation fails.
+
+5. Write behind cache:
+* server puts the data in cache and cache sends success. But behind the scene, server puts the data into a queue to put it into db asynchronously.
+
+Pros:
+- Good for heavy read
+- write latency reduces due to asynchronous operation
+- cache hit chances increases
+- gives better performance when used with read through cache
+- Even when db fails, write operation still works.
+
+Cons: if data is removed from cache but db is not updated yet, then there is an issue.

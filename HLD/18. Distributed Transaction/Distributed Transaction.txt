@@ -1,0 +1,84 @@
+Distributed Transaction
+
+Transaction is set of operations performed on DB. When working with single DB, following ACID properties are easier.
+Begin_transaction
+A: send 100rs (take lock)
+B: receive 100rs (take lock)
+
+if all success:
+	do commit (release locks)
+else:
+	do rollback
+
+close_transaction
+
+But transactions with multiple DBs doesn't work like this:
+
+A: order item (update the order db)
+B: reduce inventory (update the inventory db)
+
+if B fails, we cannot rollback transactions done on order db.
+
+Handling of transaction in Distributed DB:
+
+1. 2 Phase Commit
+2. 3 Phease Commit
+3. SAGA Pattern
+
+1. 2-PHASE COMMIT:
+
+* In this, application starts transactions, a transaction coordinator takes care of each request in two phases: prepare(voting) and commit (decision)
+* In prepare phase, coordinator asks each service if they done with their job. If everyone responds with ok, then we are ready to commit
+* In commit phase, if coordinator receives ok for commit from each service, it will close the transaction.
+
+Problems:
+If Transaction coordinator or participant fails, prepare msg, ok msg or commit msg can be lost.
+
+
+APPLICATION	TRANSACTION COORDINATOR		ORDER SERVICE		INVENTORY SERVER
+    |			   |				|			|
+    |	Request is sent    |				|			|
+    | --------------------->--	    
+			   | |transaction		|			|
+    |			   | |starts 			|			|
+    |			   |--				|			|
+    |			   |				|			|
+    |			   |---------------------------->			|			
+    |			   |\				|			|
+    |			   | \--------------------------------------------------> 
+    |			   |				|			|
+    |			   |				|			|
+    |			   |Phase 1: prepare		|			|
+    |			   |				|			|	
+    |			   |				|			|
+    |			   |  Prepared			|			|	
+    |			   |--------------------------->|			|
+    |			   |	OK			|			|
+    |			   |<---------------------------|			|
+    |			   |				|			|
+    |			   |			PREPARED			|
+    |			   |--------------------------------------------------->|
+    |			   |				OK			|
+    |			   |<---------------------------------------------------|
+    |			   |				|			|
+    |			   |				|			|
+    |			   |Phase 2: Commit 		|			|
+    |			   |		COMMIT 		|			|
+    |			   |---------------------------->			|
+    |			   |				|
+    |			   |		COMMIT		|			|
+    |			   |--------------------------------------------------->|			
+    |			   |				|			|
+    |			   |		OK		|			|
+    |			   |<---------------------------|			|
+    |			   |		OK		|			|
+    |			   |<---------------------------------------------------|
+    |			   |				|			|
+    |			   |				|			|
+    |			   |				|			|
+    |			   |				|			|
+    |			   |close			|			|
+    |			   |transaction			|			|
+    |			   |				|			|
+
+    	              

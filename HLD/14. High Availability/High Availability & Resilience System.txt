@@ -1,0 +1,24 @@
+High Availability & Resilience System
+
+question can be asked in following ways:
+1. Design High Availability or Resilience System
+2. Design a system that can avoid 99.999% failure or single point failure
+3. Design Active-Passive/Active-Active design architecture
+
+High Availability architecture is used to avoid single point of failure of application. We have 2 approaches to achieve this-
+
+1. Active-Passive
+-> In this, we have two or more datacenters with their separate DBs, but only one of them is treated as Primary until it fails or gets down.
+If primary fails, then our datacenters will make connection with one of the other replica and it will be treated as Primary.
+
+Note: We cannot write into replica DBs because Oracle/SQL/PostgreSQL doesn't support multi-master approach. But we can read from replica DBs.
+
+Disadvantages:
+1. Latency: It occurs when application from passive Data centers tries to read and write to active Datacenters.
+2. Fault Tolerance delay: The system goes into 5-15mins of failure while switching context from primary to replicas during Failure of Primary.
+
+2. Active-Active
+In this, all the datacenters are treated as active, read and write can happen on any datacenter. It usually uses NoSQL because that support multi-master architecture. Synchronization happens all the time among all the DBs.
+
+Note: Sometimes, Conflict occurs, when writing to two DBs at the same time and trying to syncup or one DB writes and other one is reading at same row.
+

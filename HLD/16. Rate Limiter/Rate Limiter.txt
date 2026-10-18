@@ -1,0 +1,107 @@
+Rate Limiter
+
+Why we need it?
+To prevent DDOS attack i.e. limit the rate of request any particular API.
+
+Algorithms:
+
+1. Token Bucket
+2. Leaking Bucket
+3. Fixed Window Counter
+4. Sliding Window counter
+5. Sliding Window log.
+
+
+Token Bucket: creates a bucket to store tokens with a capacity x. Every minute (configurable time) a refiller refills the bucket with y tokens. If a requests comes and bucket is empty, it will reject the request. It is implemented using a counter. HTTP status code is 429 (Too Many requests).
+Leaking Bucket: a bucket with capcity x to store and process the incoming requests at a fixed rate. If the incoming request rate is greater than processing rate, the requests will be denied or overflowed. It is implemented using a queue of fixed size. If queue is full, requests will get rejected. HTTP Status code is 429.
+Fixed Window Counter: a counter is configured for fixed time frame (window), let's say 5minutes. every 5 minutes counter refreshes to process new requests. Disadvantage is it will allow double the allowed requests around the timeframes. e.g. processing 3 requests a minute before and after the time-frame.
+Sliding Window log: In this, we will store the log(timestamp) of incoming requests in queue and we will process only fixed requests in a minute. We will remove the requests from queue only when a minute is passed since it came.
+Sliding Window Counter: It makes use of both the previous algos. It will slide the window and keep the counter also and checks whether current time-frame window exceeds the counter limit or not.
+
+
+HLD of Rate Limiter:
+					 -----------
+			 -------------> |CONFIG FILE|
+			|		 -----------
+		      CACHE
+			|
+			|
+CLIENT ----> RATE LIMITER/GATEWAY ----------> SERVER
+			|
+			|
+			 ------------> REDIS (storing counter/queues) = centralized datastore.
+
+If there are multiple Rate Limiter accessing Redis at a time, there may be a problem of atomicity (reading same counter simultaneously).
+But Redis has a solution to this to add atomicity and tradeoff is latency.
+
+
+Fault Tolerance Microservice:
+A microservice which continues to work even when downstream system fails. Instead of cascading failures or crashes, it handles the failure gracefully.
+
+To build a Fault Tolerant microservice, we use Resilience4J which has following capabilities and should be applied in following order only:
+Rate Limiter
+Bulkhead
+Time limiter
+Circuit Breaker
+Retry
+
+
+Bulkhead:
+It is different from Rate limiter as rate limiter limits the incoming request from client but bulkhead limits concurrent request from one microservice to another API. There are two usecases of bulkhead:
+
+When Order service is invoking product service but product service can take only 3 concurrent request in a second. Therefore, we need to limit the requests from order service using bulkhead which is called Semaphore bulkhead.
+In other scenario, when order service can invoke 2 APIs like payment and product. product service is fast and process request at 100ms but payment service is slow and takes 5s to process a request. Sometimes, payment service can take up all the resources available, leaving no thread for product service also. therefore, we will use Thread pool bulkhead to limit the consumption of resources by one API.
+
+
+Time limiter:
+It is used to prevent async call from hanging indefinitely
+It is non blocking in Resilience4J
+It is designed for asynchronous operations, that returns a reactive type Mono, flux etc.
+
+Retry:
+
+why client can't the invoke the failed API again rather than implementing retry?
+In some cases, failure happens when 90% of work is already done. So, if client invoke that api again whole work is wasted which costs a lot.
+
+When to retry?
+
+1. Don't retry when encounter 4xx errors (except 429). Because these errors occur only when input validation happens, retrying again won't make any difference.
+
+2. Don't retry when process is not Idempotent. This will make duplicate copies.
+
+3. Retry only when 5xx errors are encountered.
+
+How to retry?
+
+Fixed Interval: retry happens after fixed time interval (say 2s) for fixed amount of attempt.
+Cons: This approach usually results into thundering herd problem. It says when all requests fail due to buggy code or something, all requests will retry again at same time resulting into high retry traffic which will also discard new request.
+Pros: Easy to configure and debug.
+Exponential Backoff: Delay of retrying is exponential. Formula used: (Base * 2 ^ (no of retries)). This will increase the delay in retry as the attempts increases.
+Cons: Thundering herd can still happen, if everyone chooses same base and exponential factor. If outage period is short, it may result in longer delay and cause latency.
+Pros: Reduced load on downstream service outage and prevents thundering herd problem to some extent.
+Exponential Backoff + jitter: formula used random_number_between(0, min(maxDelay, (base* 2^(no of retries)))). This will introduce randomness and reduce the chances of thundering herd problem to almost negligible.
+cons: Hard to maintain and debug.
+Custom retry: writes our own custom intervals. Only problem is hard to maintain.
+
+
+Circuit Breaker:
+This prevents an application to make repeated calls to the downstream service when it is likely to fail.
+Suppose order service is making 1000 of request to product service, but product service is down so it is likely that all request will fail. Hence, it will result in wastage of resources(latency and thread blocking) of order service and putting unnecessary load on product service.
+Therefore, there must be some threshold over failed retry attempts. In this circuit breaker helps.
+
+States of Circuit Breaker:
+
+		1. 	2. 				3.
+Initial --------------> CLOSED ----------------------> OPEN
+			  |				|
+			  |				|
+			  |		5.		| 4.
+			  |<---------------------------HALF OPEN
+ 
+Initial all requests all are allowed.
+this is called closed state.
+When a threshold limit of failed calls reached, it will goes into open state.
+After a while, (specified duration) some calls are made from Half open state and its success rate is assessed. If success rate is not 100% then requests goes to open state again.
+If success rate is 100%, requests goes to closed state again.
+
+Command goes from Open to Half Open state using ScheduledThreadPoolExecutor. Internally it uses, priority queue sorted based on delay times. there are available worker threads which are ready to take up those task. These threads are also in blocked state or wait state until delayed time of tasks are not expired. Os wakes up these worker thread when time expires and performs the task at exact time of delay.

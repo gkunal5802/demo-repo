@@ -1,0 +1,40 @@
+Dual Write Problem
+
+This problem states that when a system wants to persist the changes in two different systems like DB and message broker kafka together but one of the two got failed. We need to make sure that both are in consistent state.
+We can not use 2PC here because certain message broker doesn't support 2PC and also in distributed system, it increases latency in the system.
+
+Solution is Event driven Architecture Pattern
+
+1. Outbox transactional pattern
+In this, we write data into db and also message_event into table called outbox table and separate process(poller) will read the outbox table to publish an async event to message broker. 
+
+Poller service keep on polling the outbox table for new events and process them in async manner.
+
+Challenges:
+
+1. Extra effort to write poller service.
+2. Poller service may publish duplicate message to broker. handle idempotency
+3. In case of multiple poller service, Handler idempotency at consumer too.
+4. Event might get publish "out of order", if different poller picking events in parallel. therefore, use kafka streams.
+5. Poller not able to publish the message to broker. Provide retry mechanism like Exponential backoff + jitter.
+6. Cleanup outbox table regularly.
+
+2. Listen to yourself Pattern
+Similar to outbox transactional pattern, But in this we will write the user_event into the outbox table and commit the transaction.
+Now Poller service polls the event. A daemon application of user_service keeps on listening the write the data into db now. 
+
+Challenges:
+All above 1-6.
+7. What if get request before publishing and consuming the event. Fix is: Use Write through Cache technique and use Redis for get request.
+
+3. Transaction Log trailing Pattern:
+-> No outbox table
+-> It has a feature like change data capture (CDC) in which if any change happen in DB, a database log is created for specific change. These changes can be read and publish as event.
+-> Tools like Debezium reads the Database table log to detect changes.
+
+Challenges:
+
+1. Duplicate messages. Need Idempotency at consumer side.
+2. Out of order messages. Use Kafka streams
+3. High Latency, as CDC may take time to write logs (because some DB write logs in batches)
+4. Some unnecessary events get published like we want to publish insert only but other update and delete got also published. Proper filtering logic is required in CDC tool.

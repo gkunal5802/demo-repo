@@ -1,0 +1,160 @@
+TCS - SLA & ASSET TRACKING SYSTEM
+
+• Architected a multi-tenant microservices platform (Asset Tracking, SLA Monitoring, Billing) supporting 5+ client accounts.
+• Designed an event-driven architecture using Apache Kafka, publishing events to decouple services, enabling independent scaling.
+• Built an append-only asset status history schema enforced at the database level, ensuring tamper-proof audit trails for SLA and
+billing calculations.
+• Used Redis for cache-aside asset status lookups and distributed locking to prevent duplicate SLA breach processing across
+horizontally scaled scheduler instances.
+• Secured all REST and internal service-to-service APIs with Spring Security (JWT authentication, RBAC), request validation, rate
+limiting serving 10K+ DAU and prevent cascading failures during partial outages.
+• Automated monthly billing report generation by aggregating asset usage and SLA compliance data from Kafka event streams,
+reducing manual report preparation effort by 85%.
+
+
+1. At TCS, I worked on a multi-tenant asset management and monitoring platform for multiple client accounts.
+
+2. The platform was primarily responsible for tracking assets, monitoring SLA compliance, and generating billing information based on asset usage and SLA-related events.
+
+3. The system followed a microservices architecture where different business capabilities such as Asset Tracking, SLA Monitoring, and Billing were implemented as independent services.
+
+4. One of the important design decisions was to make the services loosely coupled using Apache Kafka. For example, whenever an asset's status changed, the Asset Tracking service published an event to Kafka. The SLA service consumed those events to evaluate SLA conditions, while the Billing service could independently consume relevant events for usage and billing calculations. This allowed the services to scale independently and reduced direct dependencies between them.
+
+5. One of the key features that we maintained was an append-only history of asset status changes at the database level. Instead of updating the previous status record, every status transition was stored as a new record. This gave us a reliable audit trail that could be used for SLA calculations and billing.
+
+6. For performance and concurrency, we used Redis for frequently accessed asset-status data and distributed locking to make sure that when multiple scheduler instances were running, the same SLA breach wasn't processed multiple times.
+
+7. At gateway, we also implemented API security using Spring Security with JWT and role-based access control, along with request validation and rate limiting.
+
+Towards the end, I worked on automating monthly billing reports by aggregating asset usage and SLA compliance information from event data. This reduced a significant amount of manual report preparation.
+
+My primary responsibility was backend development of MVC architecture, schema designing and implementing REST API using Java, Spring Boot, Spring Security, and PostgreSQL.
+Overall, my role was primarily focused on backend development, distributed-system design, API development, data modeling, concurrency handling, and making the services reliable and scalable.
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+I am kunal garg, graduated with Btech degree in Information Technology in 2024. Since then I have worked with 2 organization on different tech stacks. I have started my professional journey with Anatares tech and worked for 8 months there on Hotel booking website using reactjs and nodejs. And now I am working for TCS for the past 1.5 years on a B2B enterprise application which is responsible for tracking and monitoring business assets.
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+1. I have been working on B2B enterprise application which is used for managing business and monitoring the platform. 
+
+2. The platform was primarily responsible for tracking assets, monitoring SLA compliance, and generating billing information based on asset usage and SLA-related events.
+
+3. The application followed a microservice architecture where different business capabilities are managed independently.
+
+4. We have 3 major services: 
+a. Asset tracking: which handles asset registration, status transition for assets with full history logging.
+b. SLA Monitoring: which monitors assets against sla rules configured by client to detect SLA breach and report it to concerned stakeholders.
+c. Billing services: which generates report based on asset usage and SLA compliance information.
+
+5. The application uses:
+- Java and spring boot for API implementation
+- spring security for authentication RBAC authorization
+- spring cloud for service discovery and API gateway
+- Postgre for maintaining the db and indexes.
+- Kafka for decoupling the application and performs asynchronous operations to publish events like: statusChange, slaBreachdetected, BillingReportGenerated.
+- Redis for caching & distributed locking
+- Docker for containerization
+
+6. My primary responsibility was backend development of MVC architecture, schema designing and implementing REST API using Java, Spring Boot, Spring Security, and PostgreSQL.
+
+7. The most challenging feature was to implement append-only history for assetStatusChangeEvent. 
+
+
+we have created a separate table in db for assetStatusHistory apart from a current status in our asset table. 
+At the database level, we can revoke UPDATE and DELETE permissions on the history table and use database triggers to reject those operations.
+We have ensured that every change in asset status doesn't update the db rather it creates a new row for the change to preserve the audit trail. It is important for maintaining the history to generate the billing.
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+* Asset tracking Module:
+This is the service that client will directly interact with and configure. This module provides features like asset registration, status transitions for assets, with full history logging associated with each client. The access to this service is only provided to admin for configuration purposes. The service tracks the asset status change and publishes event to all the downstream services like SLA Compliance service and Billing services.
+
+* SLA Monitoring Module:
+This service is responsible for maintaining and calculating SLA breaches. It Continuously checks for the asset status change via scheduled jobs and scans open assets elapsed times against SLA rules. these rules are configured by client only (different for each asset category).
+
+* Billing Module:
+It periodically (monthly, via scheduled job) aggregates asset usage + SLA compliance per client and generates a report file. Billing reports tie directly back to SLA breach data, so if a client had 3 breaches in a category with a penalty clause, that's reflected in the final billed amount — the report is auditable back to the individual breach events.
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Asset Tracking Service
+
+Responsible for:
+
+Asset registration
+Asset metadata
+Current asset status
+Status transitions
+Asset history
+Client/tenant association
+
+. Explain your append-only database design
+Every transition creates a new record.
+
+Why?
+
+Because SLA calculation may require knowing:
+How long was the asset DOWN?
+
+An interviewer may ask:
+
+You said the audit trail was enforced at the database level. How?
+
+You should have a specific answer.
+
+For example:
+
+We treated the history table as append-only. Application code only had INSERT permission for the history records, while UPDATE and DELETE were restricted. We also used database constraints/triggers where appropriate to prevent modification of historical records.
+
+My contribution
+
+I was primarily involved in backend development. I worked on the Asset Tracking and SLA-related services, including REST API development, database schema design, Kafka event publishing/consumption, Redis caching and distributed locking, security, and automation of billing-related processing
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Months 1–3
+
+Understanding + onboarding
+
+Learned business domain
+Understood existing microservices
+Worked on bug fixes
+Developed basic REST APIs
+Learned deployment/testing process
+Months 4–6
+
+Feature development
+
+Asset management APIs
+Status management
+Database changes
+Validation
+Unit/integration testing
+Months 7–10
+
+Distributed architecture
+
+Kafka producers/consumers
+Event-driven workflows
+SLA processing
+Redis caching
+Scheduler improvements
+Months 11–14
+
+Reliability + security
+
+JWT
+RBAC
+Rate limiting
+Distributed locks
+Handling duplicate processing
+Failure scenarios
+Months 15–18
+
+Ownership
+
+Billing automation
+Performance improvements
+Production issues
+Debugging
+Design discussions
+Code reviews
+Supporting deployments

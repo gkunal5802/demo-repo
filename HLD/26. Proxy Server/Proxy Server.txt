@@ -1,0 +1,41 @@
+Proxy Server
+
+what is proxy server? What are its advantages?
+what are its types?
+Difference between proxy and vpn
+difference between proxy and load balancer
+diff between proxy and firewall
+
+Proxy server sits in the middle of client and server hiding the client's identity and redirecting the request to server. Proxy can take up request from multiple clients within the same network.
+Advantages:
+
+1. Anonymous nature of client.
+2. Helps in accessing restricted content
+3. Security
+4. Grouping of similar requests
+5. Caching
+
+Types:
+1. Forward Proxy:
+CLIENT --> PROXY --> INTERNET --> SERVER
+
+2. Reverse Proxy:
+CLIENT --> INTERNET --> PROXY --> SERVER
+
+Reverse proxy hides the identity of server. CDN acts as reverse proxy.
+Advantages:
+
+1. Security: It helps with handling of DDos Attack
+2. Caching:
+3. Latency reduces
+4. Load Balancing
+
+Proxy vs VPN
+
+Proxy helps in ip anonymity by masking the client ip but vpn creates an encrypted tunnel between client and server and send the encrypted data.
+
+proxy vs load balancing
+Reverse proxy can acts as load balancer but vice-versa is not applicable because reverse proxy does more job than load balancing.
+
+proxy vs firewall
+Modern proxies has firewall capability with them but they work on application layer whereas traditional firewall works on packet level to block the traffic.

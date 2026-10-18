@@ -1,0 +1,19 @@
+HR based questions:
+
+1. Introduction
+2. Why join netapp?
+-> What I have explored about the netapp is its positions data infrastructure, storage, cloud and security. 
+-> The thing that intrigued me most was storage systems, I have always wondered how do we ensure that my years of years data stored on devices is preserved. And If corrupt and can be recovered. I have always wanted to work around this stuff.
+-> So I think, this will be a great opportunity to explore this infrastructure.
+-> Also there is product of netapp called ONTAP. It has huge benefits that are must for growing need of data storage.
+-- if 50 employees save same email attachement on server it just analyze the files and save on copy. 
+-- it can create a copy of huge without wasting any space instantly. 
+-- It can be used across different devices and platforms to store data.
+
+fall behind the task
+-- categories the task
+-- communicate the involvement of other teams
+-- schedule deadlines
+-- possibility of doing overtime
+-- first try to complete things that are needed on my part.
+

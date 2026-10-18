@@ -1,0 +1,81 @@
+Java Memory management
+
+Java requires memory to store variables, methods, metadata of classes. Different space is created in memory to store different data.
+
+1. Heap: It stores objects and instance variables. It is shared by all the threads and we need to make all the objects thread safe. This memory is dynamic in nature. we can decide how much memory will it take like -Xms2m (mini space 2mb) and -Xmx5m(max space 5mb). It is managed by GC. and it is slower than stack.
+2. Method Area: It is shared by all threads. Its contains class Name, inheriting class (Object class), method names, parameters of methods, return type everything. Also static variables are stored here.
+3. Stack: contains local variables, method variables , reference variables, return address (line number). Every thread has its own stack space. It grows and shrink automatically.
+4. Program counters: stores instructions that are going to execute. Every thread has its own PC.
+
+E.g.
+public class Demo{
+	public static void main(){
+		int x=5;
+		Student s = new Student();
+		s.name = "Kunal";
+	}
+}
+
+How memories are used?
+1. when we compile the code, it creates class file (bytecode).
+2. JVM starts
+3. class loader in JVM loads the class file and store everything about Demo class in method area
+4. main thread is created with its specific stack space and program counter.
+
+Heap memory & Garbage Collection:
+
+Heap memory is divided into young generation, old generation & String pool. Young and old generation holds object and string created with "new" keyword (string str = new string("hello") while string pool holds strings object created with string literal (string str = "hello");
+
+Why memory is divided in such a way because: we want our GC to run in a separate manner for separate object. GC runs more frequently in young generation than old generation. 
+
+Note: When GC runs our programs stops for that movement.
+
+1. young generation - categorized into Eden and survivor space(s0, s1).
+
+Newly created object always goes to eden. After first cycle of GC, the object which survives goes to survivor space i.e. S0. After continuous implementation of GC, the object moves back and forth between S0 and S1 until certain counter. If still object survives after the GC has run "counter" times then, it moves to old generation (considered long lived object).
+
+This counter can be fixed but can also be dynamic. JVM can change the value of this counter to optimize the performance on the basis of:
+- survivor space overflow: survivor space is getting filled quickly, so move the object to old gen
+- dynamic age determination: many objects are created together and survives together, so move the object to old gen
+- Large object arrays: directly move the object to old gen.
+
+Garbage Collection Algorithms:
+GC runs in two ways major gc (runs in old gen) and minor gc(runs in young gen).
+
+1. Mark & sweep: used for major gc. Objects are stored in array. This algo scans all objects and marks object which are dereferenced and sweeps (remove) them in next step. But it leaves fragments in memory.
+2. Mark compact: used for major gc. same as mark and sweep but doesn't leave fragments in array memory as it shifts the object which is costly operation.
+3. Copying: runs in minor gc. copy the objects which survives from eden to S0 and remove everything from eden, hence it is fast
+
+Types of Garbage Collectors:
+1. Sequental/Serial GC:
+2. Parallel GC: which use multiple threads to complete GC process and reduce pause time.
+3. G1: divides heap memory into multiple regions of garbage and priorities regions which has most of the garbage.
+4. ZGC: same as G1 but focuses on low pause times. it performs work concurrently with application process running.
+5. Shenandoah: same as ZGC.
+Management of memory through an example:
+
+class Student{
+string name;
+string age;
+static string college = "IIT D";
+
+Student(String name, int age){
+	this.name = name;
+	this.age = age;
+}
+
+public void markAttendance(){
+	print(this.name+ "is present");
+}
+
+public static void changeCollege(){
+	college = "IIT Bombay";
+}
+}
+
+public class Main{
+public static void main(){
+	Student s = new Student("abc", 12);
+	s.markAttendance();
+	Student.changeCollege();
+}

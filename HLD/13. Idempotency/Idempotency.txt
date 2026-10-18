@@ -1,0 +1,88 @@
+Idempotency
+
+          Client
+             |
+             | POST /payment
+             | Idempotency-Key: abc123
+             v
+      +------------------+
+      |   API Gateway    |
+      +------------------+
+             |
+             v
+      +------------------+
+      | Payment Service  |
+      +------------------+
+             |
+      Check Idempotency
+             |
+      +------+------+
+      |             |
+  Key Exists?    Key Missing?
+      |             |
+ Return Cached   Process Payment
+  Response            |
+      |          Save Key + Response
+      |             |
+      +------> Return Response
+
+It enables the client to safely retry an operation without worrying about the side-effect of operation it can cause. It avoids creating duplicates. e.g. Adding an item to cart. You can click again to add item, nothing will happen.
+
+GET, PUT, DELETE requests are already idempotent in nature as they doesn't make any difference on db if requests are created multiple times.
+But POST request is not idempotent, it will have side-effects which may be of 2 types:
+
+1. Sequential: One post request is made, but timeout happens on client side. another request comes and previous request is also processed by server thereby creating duplicacy.
+
+	       POST
+	| ------------> | SERVER
+	|		| ]
+CLIENT  |     TIMOUT    | ]
+ 	| <------------ | ]
+	| 		| ] PROCESSED
+	|	POST    |
+	| ------------>	| DUPLICATE REQUEST CAME.
+	|		|
+
+
+2. Parallel: In this multiple request can come at the same time maybe from different browser or device.
+
+Made 2 Agreements with client before generating a key:
+-> Client should generate a key
+-> For each different operation, new Idempotent key should be generated.
+
+Approach for handling Idempotency In Sequential manner:
+
+Generate a unique id or Idempotency key which is UUID.
+
+1. suppose we are adding an item to cart. The post request is created and with that a Idempotent key(IK1) is added to header of request.
+2. Request goes to server with header.
+3. we will check whether IK1 is present in header or not. If not, return validation error (400 bad request).
+4. If IK1 is present in header, we will lookup the status of key in DB. If it is not present in db, we will create an entry for it with status as CREATED/ACQUIRED.
+5. If operation/request is success, then return 201 to client. Resource is created successfully. status of key is changed to CONSUMED/CLAIMED.
+6. If key was already present in DB, we will check the status of key, if status is still created return 409 duplicate request otherwise return 200 depicting previous request is completed and no resource is created again.
+
+Handling Idempotency in Parallel:
+
+During above operations, when we query over the db we should take lock (mutex or semaphore) over the UUID (IK) to avoid duplication.
+
+
+Topics should be covered:
+
+What is Idempotency?
+Why do we need it?
+Real-world examples
+Problems without idempotency
+HTTP methods and idempotency
+Idempotency Key
+How idempotency works internally
+Database design
+Architecture diagram
+Request flow
+Different implementation approaches
+Distributed systems challenges
+Message Queue idempotency
+Payment system example
+Common interview questions
+Follow-up questions
+
+

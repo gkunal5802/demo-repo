@@ -1,0 +1,35 @@
+Load Balancer
+
+it distribute the load of multiple clients across different server. It can be of two types: L4 load balancers and L7 load balancers. 
+
+Types:
+L7 load balancers works on application layer and can distribute the traffic based on data/header/session and can also do caching. Its more advanced than L4.
+L4 load balancers or Network load balancers works on network layer and can distribute the traffic based on tcp/udp ip and port. Its much more faster than L7.
+
+Different Algorithms used to make load balancers. There two types of algos
+1. static: Round robin, weighted RR, Ip hash.
+2. Dynamic: least connection, weighted Least connection, least response time
+
+All these works on L4 load balancers only.
+
+1. Round robin: In this, all the incoming requests are equally distributed among the servers. 
+Advantages: Easy to implement
+Disadvantages: Not ideal for different capacity servers.
+
+2. Weighted Round robin: all the incoming requests are distributed based on capacity of servers. Servers with high capacity can handle more requests easily.
+Advantages: As weights are static, it is easy to implement and low capacity server won't get overload.
+Disadvantages: If requests that require more processing power comes at low capacity server, it will get overburdened very soon.
+
+3. Ip Hash: In this, we hash the ip of client to send it to particular server.
+Advantages: If we want a particular client to always connect same server, its the best algo for that.
+Disadvantages: If we forward proxy enabled, then hashing won't work as it will forward the traffic to same server and overload it.
+
+DYNAMIC:
+
+1. Least Connection: LB checks which server has less no of active connection and forwards that the request to that server.
+Advantages: Dynamically allocating the load, will help distribute the load on each server with equal capacity.
+Disadvantages: It may be possible, that server having more active connection has no or less traffic than other servers.
+
+2. Weight Least Connection: LB forwards requests based on minimum connection/capcity ratio.
+
+3. Least Response time: In this, LB distributes the load which has minimum (active_conn * TTFB). TTFB is time to first byte which is time taken to get the first packet/byte in response from server.

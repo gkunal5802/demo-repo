@@ -1,0 +1,35 @@
+Database Indexing
+
+Before working of indexing, let's understand:
+
+1. How table data(rows) are actually stored?
+2. what type of indexing present?
+3. Understanding the data structure used in indexing and its working
+
+
+1. How table data are actually stored?
+DBMS creates and manages datapages(size: 8kb, depends on DB). As for storing table data, multiple data pages can created.
+A datapage has three fields: header, data records, offset. Header contains page_id, checksum etc, data records holds table row, and offset contains pointer to table rows stored in data records.
+
+All these datapages gets stored in datablocks of physical memory. 
+Datablocks are the minimum amount of data which can be read/write by an I/O operation. Its can range from 4kb to 32kb and It can hold 1 or more datapages. DBMS maintains the mapping of datapage and datablocks
+
+2. What are the types of indexing in RDBMS?
+there are 2 types: clustered and non clustered
+
+Indexing is used to improve the performance of database query, so that data can be fetched faster. Without indexing database has search every row to find the requested data. Therefore, RDBMS uses B+ Tree whose T.C. is O(logn) to search, delete and insert the data.
+
+B Tree:
+- It maintains sorted data and all leafs are at same level.
+- A "M" order B tree means a tree can have atmost "M" children and each child can have atmost "M-1" keys.
+
+B+ Tree: Same as B tree but child nodes also has pointer pointing to each other.
+
+A. Clustered Indexing:
+* the order of rows inside the datapage match with the order of index 
+* So only one clustered index can be present because ordering of pages can be done based on one index only.
+* If manually you have not specified any clustered index, DBMS will select primary key as clustered index.
+* If primary key is not available, DBMS will create a hidden column internally which is sequentially increasing and not null.
+
+B Non Clustered Index:
+* It can be used to index other columns of table which are not marked as primary key. Hence this index is called secondary key.

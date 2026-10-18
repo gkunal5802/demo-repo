@@ -1,0 +1,59 @@
+JWT
+
+It provides a secure way of transmitting information between parties as a JSON object. This info can be verified because it is digitally signed using RSA.
+
+Where to use:
+Used for Authentication, Authorization, SSO (Single Sign On)
+
+Flow in Login using JWT:
+
+1. client will login to Authentication server.
+2. It will generate and return jwt token.
+3. Client will request access of user resources and sends this token in the request header.
+4. Resource server will verify the token with authentication server
+5. If verified, it will share the user resources.
+
+Before Jwt, developers use session_id which, unlike jwt, is stateful. whenever client login into authentication server it hits db and saves a session in it. Resource server will also hit db to fetch session and verify.
+
+Structure of JWT:
+
+1. Header: contains metadata info like 
+- typ: of token which is always JWT
+- alg: RSA (symmetric) or HMAC (asymmetric)
+
+2. Payload: is the claim or actual info of user. Claim can be of 3 types:
+- Public claim: info which can be share with other parties like email, age etc.
+- Private claim: info which is indented for internal use like username, password, bank details etc.
+- Registered claim: info which are only jwt and related party can understand like
+a. iss: Issuer, who issue the token
+b. aud: Audience, the recipient of token
+c. iat: Issue at, time at which token is issued.
+d. jti: jwt id
+e. exp: expiration time
+f. nbf: not before, token should be not accepted before particular time.
+g. sub: Subject, identifies the user.
+
+3. Signature: 
+- concatenation of Base64 encoded Header and payload string as "Base64(header).Base64(payload)"
+- create digital signature using RSA or HMAC of this string.
+- encode the signature with BASE64.
+
+Token is: "BASE64(header).BASE64(payload).BASE64(signature)"
+
+Advantages of JWT:
+1. Compact: smaller size, so it can be sent in to HTTP header
+2. Stateless: avoid querying database.
+3. built in Expiration mechanism
+4. can be signed using symmetric (HMAC) or asymmetric (RSA) key
+5. Custom claim (additional data) can be added in JWT.
+
+Problems with JWT:
+1. Token invalidation: no mechanism to identify blacklisted user/tokens before expiration time. Fix:
+- maintain db to keep track of blacklist token.
+- change the secret key, but invalidate the valid user also.
+- make the token short lived and used only once.
+
+2. Payload is encoded not encrypted
+3. Unsecured JWT with alg: "none", such JWT, if used, should be rejected.
+4. Jwk exploit: public key shared in this, should not be used to verify signature.
+5. Use of "Kid" in header to find the public key.
